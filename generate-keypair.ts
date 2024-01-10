@@ -1,7 +1,7 @@
 import { Keypair } from '@solana/web3.js'
 
 /**
- * 生成公私钥对
+ * 生成 sol 公私钥对
  */
 const keypair = Keypair.generate()
 
