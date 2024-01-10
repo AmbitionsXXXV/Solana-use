@@ -8,6 +8,9 @@ import {
 } from '@solana/web3.js'
 import 'dotenv/config'
 
+/**
+ *
+ */
 const suppliedToPubkey = process.argv[2] || null
 
 if (!suppliedToPubkey) {
@@ -31,6 +34,12 @@ const transaction = new Transaction()
 
 const LAMPORTS_TO_SEND = 5000
 
+/**
+ * The `SystemProgram.transfer()` function requires:
+ * a public key corresponding to the sender account
+ * a public key corresponding to the recipient account
+ * the amount of SOL to send in lamports.
+ */
 const sendSolInstruction = SystemProgram.transfer({
   fromPubkey: senderKeypair.publicKey,
   toPubkey,
