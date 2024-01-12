@@ -47,7 +47,9 @@ async function sendPingTransaction(
     keys: [
       {
         pubkey: pingProgramDataId,
+        // isSigner 表示账户是否是交易的签字人
         isSigner: false,
+        // isWritable 表示在交易执行过程中是否写入账户信息
         isWritable: true,
       },
     ],
