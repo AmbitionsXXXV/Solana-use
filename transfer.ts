@@ -39,6 +39,7 @@ const LAMPORTS_TO_SEND = 5000
  * a public key corresponding to the sender account
  * a public key corresponding to the recipient account
  * the amount of SOL to send in lamports.
+ * 使用 SystemProgram.transfer：适用于标准的 SOL 转账操作。它是一个预先封装好的、简化的方法，用于在 Solana 系统程序中进行转账。
  */
 const sendSolInstruction = SystemProgram.transfer({
   fromPubkey: senderKeypair.publicKey,

@@ -25,10 +25,15 @@ const PING_PROGRAM_DATA_ADDRESS = new web3.PublicKey(
   'Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod',
 )
 
+const CLUSTER_NAME = 'devnet'
+
 // 从环境变量获取支付者的密钥对
 const payer = getKeypairFromEnvironment('SECRET_KEY')
+console.log(`🔑 Loaded keypair ${payer.publicKey.toBase58()}!`)
+
 // 创建到 Solana Devnet 的连接
-const connection = new web3.Connection(web3.clusterApiUrl('devnet'))
+const connection = new web3.Connection(web3.clusterApiUrl(CLUSTER_NAME))
+console.log(`⚡️ Connected to Solana ${CLUSTER_NAME} cluster!`)
 
 // 发送 PING 交易的异步函数
 async function sendPingTransaction(
@@ -43,6 +48,8 @@ async function sendPingTransaction(
   const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 
   // 创建交易指令
+  // TransactionInstruction 这种方式提供了更高的灵活性，允许开发者直接定义交易的细节。它常用于与自定义程序（智能合约）交互，特别是当需要提供特定的参数或与非标准程序交互时
+  // 直接创建 TransactionInstruction：适用于需要更细粒度控制的场景，比如与自定义智能合约交互。这种方法提供了更大的灵活性，允许开发者明确指定交易中的每个参与账户的角色和权限
   const instruction = new web3.TransactionInstruction({
     keys: [
       {
