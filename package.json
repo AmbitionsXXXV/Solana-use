@@ -1,7 +1,8 @@
 {
-  "type": "module",
   "dependencies": {
+    "@coral-xyz/borsh": "^0.29.0",
     "@solana-developers/node-helpers": "^1.2.2",
+    "@solana/spl-token": "^0.3.11",
     "@solana/web3.js": "^1.88.0",
     "esrun": "^3.2.26",
     "typescript": "^5.3.3"
