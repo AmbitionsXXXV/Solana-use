@@ -1,10 +1,18 @@
 {
+  "scripts": {
+    "start": "ts-node solana-program/index.ts"
+  },
   "dependencies": {
     "@coral-xyz/borsh": "^0.29.0",
     "@solana-developers/node-helpers": "^1.2.2",
     "@solana/spl-token": "^0.3.11",
+    "@solana/spl-token-swap": "^0.4.0",
     "@solana/web3.js": "^1.88.0",
+    "dotenv": "^16.3.1",
     "esrun": "^3.2.26",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }
