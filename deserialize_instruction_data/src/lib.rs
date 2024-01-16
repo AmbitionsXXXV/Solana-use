@@ -1,7 +1,11 @@
 use instruction::MovieInstruction;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, pubkey::Pubkey};
+use solana_program::{
+    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
+};
 
 pub mod instruction;
+
+entrypoint!(process_instruction);
 
 pub fn process_instruction(
     program_id: &Pubkey,
