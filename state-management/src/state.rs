@@ -1,8 +1,9 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 
 #[derive(BorshSerialize, BorshDeserialize)]
-pub struct StudentInfo {
+pub struct MovieAccountState {
     pub is_initialized: bool,
-    pub name: String,
-    pub msg: String,
+    pub rating: u8,
+    pub description: String,
+    pub title: String,
 }
