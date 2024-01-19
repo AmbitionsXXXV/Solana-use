@@ -59,10 +59,8 @@ pub fn add_movie_review(
     let pda_account = next_account_info(account_info_iter)?;
     let system_program = next_account_info(account_info_iter)?;
 
-    let (pda, bump_seed) = Pubkey::find_program_address(
-        &[initializer.key.as_ref(), title.as_bytes().as_ref()],
-        program_id,
-    );
+    let (pda, bump_seed) =
+        Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes()], program_id);
 
     // Calculate account size required
     let account_len: usize = 1 + 1 + (4 + title.len()) + (4 + description.len());
@@ -85,11 +83,7 @@ pub fn add_movie_review(
             pda_account.clone(),
             system_program.clone(),
         ],
-        &[&[
-            initializer.key.as_ref(),
-            title.as_bytes().as_ref(),
-            &[bump_seed],
-        ]],
+        &[&[initializer.key.as_ref(), title.as_bytes(), &[bump_seed]]],
     )?;
 
     msg!("PDA created: {}", pda);
