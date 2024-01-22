@@ -3,6 +3,7 @@
     "borsh",
     "esrun",
     "LAMPORTS",
-    "Sysvar"
+    "Sysvar",
+    "thiserror"
   ]
 }
