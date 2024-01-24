@@ -1,7 +1,10 @@
 {
+  "name": "solana-learn",
+  "author": "etcetera",
   "scripts": {
     "start": "ts-node solana-program/index.ts"
   },
+  "packageManager": "pnpm@8.14.3",
   "dependencies": {
     "@coral-xyz/borsh": "^0.29.0",
     "@solana-developers/node-helpers": "^1.2.2",
@@ -13,6 +16,7 @@
     "typescript": "^5.3.3"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "turbo": "^1.11.3"
   }
 }

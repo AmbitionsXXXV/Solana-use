@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  './app/basic_security_validation',
+  './app/deserialize_instruction_data',
+  './app/state-management',
+]
