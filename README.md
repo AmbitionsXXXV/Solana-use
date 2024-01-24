@@ -1,6 +1,6 @@
 # A repository about learn Solana
 
-## [Simple entry solana program](https://github.com/AmbitionsXXXV/Sol-learn/blob/main/solana-program)
+## [Simple entry solana program](https://github.com/AmbitionsXXXV/Sol-learn/tree/main/app/solana-program)
 
 ### run
 
