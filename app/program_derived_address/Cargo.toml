@@ -1,0 +1,16 @@
+[package]
+name = "program_derived_address"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+solana-program = "1.17.14"
+ahash = "=0.8.6"
+borsh = { version = "0.9.3", features = ["derive"] }
+thiserror = "1.0.56"
+
+[lib]
+name = "program_derived_address"
+crate-type = ["cdylib", "lib"]
