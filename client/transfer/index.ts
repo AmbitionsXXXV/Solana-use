@@ -8,38 +8,45 @@ import {
 } from '@solana/web3.js'
 import 'dotenv/config'
 
-/**
- *
- */
+// 从命令行参数中获取接收者的公钥
 const suppliedToPubkey = process.argv[2] || null
 
+// 如果没有提供接收者公钥，则提示用户输入并退出程序
 if (!suppliedToPubkey) {
   console.log(`Please provide a public key to send to`)
   process.exit(1)
 }
 
+// 从环境变量中获取发送者的密钥对
 const senderKeypair = getKeypairFromEnvironment('SECRET_KEY')
 
+// 打印发送者密钥对和接收者公钥，用于验证
 console.log(`suppliedToPubkey: ${suppliedToPubkey}`, senderKeypair)
 
+// 将提供的接收者公钥字符串转换为 PublicKey 对象
 const toPubkey = new PublicKey(suppliedToPubkey)
 
+// 创建到 Solana devnet 的连接
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed')
 
+// 确认已加载发送者密钥对，接收者公钥，并且已连接到 Solana 网络
 console.log(
   `✅ Loaded our own keypair, the destination public key, and connected to Solana`,
 )
 
+// 创建一个新的交易对象
 const transaction = new Transaction()
 
+// 定义要发送的 lamports 数量（1 SOL = 1,000,000,000 lamports）
 const LAMPORTS_TO_SEND = 5000
 
 /**
- * The `SystemProgram.transfer()` function requires:
- * a public key corresponding to the sender account
- * a public key corresponding to the recipient account
- * the amount of SOL to send in lamports.
- * 使用 SystemProgram.transfer：适用于标准的 SOL 转账操作。它是一个预先封装好的、简化的方法，用于在 Solana 系统程序中进行转账。
+ * 使用 SystemProgram.transfer 创建转账指令。
+ * SystemProgram.transfer 需要：
+ * - 发送者账户的公钥
+ * - 接收者账户的公钥
+ * - 要发送的 SOL 数量，以 lamports 为单位
+ * 这是一个用于执行 Solana 系统程序中标准 SOL 转账的简化方法。
  */
 const sendSolInstruction = SystemProgram.transfer({
   fromPubkey: senderKeypair.publicKey,
@@ -47,12 +54,15 @@ const sendSolInstruction = SystemProgram.transfer({
   lamports: LAMPORTS_TO_SEND,
 })
 
+// 将转账指令添加到交易中
 transaction.add(sendSolInstruction)
 
+// 发送交易并等待确认，使用发送者的密钥对进行签名
 const signature = await sendAndConfirmTransaction(connection, transaction, [
   senderKeypair,
 ])
 
+// 打印转账成功的消息和交易签名
 console.log(`💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `)
 console.log(`Transaction signature is ${signature}!`)
 
