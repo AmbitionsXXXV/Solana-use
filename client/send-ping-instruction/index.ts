@@ -81,7 +81,9 @@ async function sendPingTransaction(
 }
 
 // 如果你的钱包没有足够的 SOL，你可以使用下面的代码向你的钱包发送 1 SOL：
-// await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL*1)
+if ((await connection.getBalance(payer.publicKey)) === 0) {
+  await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1)
+}
 
 // 调用发送 PING 交易的函数
 await sendPingTransaction(connection, payer)
