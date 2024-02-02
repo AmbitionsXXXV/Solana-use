@@ -1,4 +1,3 @@
-// 导入所需的包和函数
 import { getKeypairFromEnvironment } from '@solana-developers/node-helpers'
 import {
   Connection,
@@ -9,6 +8,13 @@ import {
   sendAndConfirmTransaction,
 } from '@solana/web3.js'
 import 'dotenv/config' // 使用 dotenv 来加载环境变量，便于管理敏感信息
+import { promises as fs } from 'fs' // 导入fs模块的promises API，用于异步文件操作
+import path from 'path'
+
+// 运行
+// npx esrun client/batch_create_solana_accounts/index.ts
+// 如果你想要创建不同数量的账户，可以在命令行中传入一个参数，例如：
+// npx esrun client/batch_create_solana_accounts/index.ts 10 // 创建10个账户
 
 // 连接到 Solana 的 devnet，devnet 是 Solana 的开发网络，用于开发和测试，confirmed 是交易确认级别
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed')
@@ -26,6 +32,8 @@ const numberOfAccounts = process.argv[2] ? parseInt(process.argv[2], 10) : 5 // 
 
 // 定义一个异步函数来批量创建账户
 async function createMultipleAccounts() {
+  let accountDetails = [] // 用于存储所有新创建账户的详情
+
   for (let i = 0; i < numberOfAccounts; i++) {
     // 为每个新账户生成一个密钥对
     const newAccount = Keypair.generate()
@@ -59,9 +67,30 @@ async function createMultipleAccounts() {
         `账户 ${i + 1} 创建成功: ${newAccount.publicKey.toBase58()}，分配了 ${lamportsPerAccount / LAMPORTS_PER_SOL} SOL`,
       )
       console.log(`交易签名: ${signature}`)
+
+      // 保存账户的公钥和私钥到数组
+      accountDetails.push({
+        publicKey: newAccount.publicKey.toBase58(),
+        secretKey: Array.from(newAccount.secretKey), // 将 Uint8Array 转换为普通数组
+      })
     } catch (error) {
       console.error(`创建账户 ${i + 1} 失败:`, error)
     }
+  }
+
+  // 将所有账户信息写入 JSON 文件
+  try {
+    // 使用 fs.promises API 的 writeFile 方法异步写文件
+    await fs.writeFile(
+      path.resolve(__dirname, './createdAccounts.json'),
+      JSON.stringify(accountDetails, null, 2), // 使用 JSON.stringify 方法将 accounts 数组转换为JSON格式的字符串，JSON.stringify 的第二个和第三个参数用于格式化输出，使得生成的 JSON 文件更易读
+    )
+    console.log(
+      `✅ Successfully generated and saved ${numberOfAccounts} accounts to createdAccounts.json`, // 如果文件写入成功，打印成功信息
+    )
+  } catch (err) {
+    // 如果文件写入失败，打印错误信息
+    console.error('Failed to save accounts:', err)
   }
 }
 
