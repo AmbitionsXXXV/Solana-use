@@ -3,6 +3,7 @@
     "borsh",
     "esrun",
     "LAMPORTS",
+    "pnpx",
     "Sysvar",
     "thiserror"
   ]

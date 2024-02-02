@@ -1,4 +1,4 @@
-import { getKeypairFromEnvironment } from '@solana-developers/node-helpers'
+import { getKeypairFromEnvironment } from '@solana-developers/helpers'
 import web3 from '@solana/web3.js'
 import 'dotenv/config'
 
