@@ -8,6 +8,9 @@ import {
 } from '@solana/web3.js'
 import 'dotenv/config'
 
+// 运行：
+// pnpx esrun client/transfer/index.ts <接收者公钥>
+
 // 从命令行参数中获取接收者的公钥
 const suppliedToPubkey = process.argv[2] || null
 
