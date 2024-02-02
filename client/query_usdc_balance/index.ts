@@ -9,6 +9,7 @@ import 'dotenv/config' // 使用 dotenv 来加载环境变量，方便管理配�
 
 // 设置连接到 Solana 网络的集群名称，这里使用 'devnet' 作为测试网络
 const CLUSTER_NAME = 'devnet'
+// 想查看主网的话，可以使用 'mainnet-beta'，然后下方 userWalletAddress 的 new PublicKey 使用主网地址
 
 // 使用 clusterApiUrl 创建到指定 Solana 集群（网络）的连接
 const connection = new Connection(clusterApiUrl(CLUSTER_NAME))
