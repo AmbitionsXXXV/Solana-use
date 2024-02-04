@@ -11,10 +11,15 @@ import 'dotenv/config' // 使用 dotenv 来加载环境变量，便于管理敏�
 import { promises as fs } from 'fs' // 导入fs模块的promises API，用于异步文件操作
 import path from 'path'
 
-// 运行
-// npx esrun client/batch_create_solana_accounts/index.ts
-// 如果你想要创建不同数量的账户，可以在命令行中传入一个参数，例如：
-// npx esrun client/batch_create_solana_accounts/index.ts 10 // 创建10个账户
+/**
+ * 运行前准备：
+ * 保证发起人账户有足够的 SOL 用于支付交易费用，因为创建账户需要支付交易费用
+ *
+ * 运行
+ * npx esrun client/batch_create_solana_accounts/index.ts
+ * 如果你想要创建不同数量的账户，可以在命令行中传入一个参数，例如：
+ * npx esrun client/batch_create_solana_accounts/index.ts 10 // 创建10个账户
+ */
 
 // 连接到 Solana 的 devnet，devnet 是 Solana 的开发网络，用于开发和测试，confirmed 是交易确认级别
 const connection = new Connection('https://api.devnet.solana.com', 'confirmed')
