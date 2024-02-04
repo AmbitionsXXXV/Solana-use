@@ -17,8 +17,12 @@ import path from 'path'
  *
  * 运行
  * npx esrun client/batch_create_solana_accounts/index.ts
+ * 或者
+ * pnpm batch_create_solana_accounts
  * 如果你想要创建不同数量的账户，可以在命令行中传入一个参数，例如：
- * npx esrun client/batch_create_solana_accounts/index.ts 10 // 创建10个账户
+ * npx esrun client/batch_create_solana_accounts/index.ts <账户数量>
+ * 或者
+ * pnpm batch_create_solana_accounts <账户数量>
  */
 
 // 连接到 Solana 的 devnet，devnet 是 Solana 的开发网络，用于开发和测试，confirmed 是交易确认级别

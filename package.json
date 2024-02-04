@@ -4,6 +4,7 @@
   "scripts": {
     "start": "ts-node solana-program/index.ts",
     "load_keypair": "esrun ./client/load_keypair/index.ts",
+    "batch_create_solana_accounts": "esrun ./client/batch_create_solana_accounts/index.ts",
     "generate_keypair": "esrun ./client/generate_keypair/index.ts"
   },
   "packageManager": "pnpm@8.14.3",
