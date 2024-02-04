@@ -30,9 +30,9 @@ const userWalletAddress = new PublicKey(
 )
 
 // 如果用户账户余额为 0，则向用户账户请求 1 个 SOL
-if ((await connection.getBalance(userWalletAddress)) === 0) {
-  await connection.requestAirdrop(userWalletAddress, LAMPORTS_PER_SOL * 1)
-}
+// if ((await connection.getBalance(userWalletAddress)) === 0) {
+//   await connection.requestAirdrop(userWalletAddress, LAMPORTS_PER_SOL * 1)
+// }
 
 // 定义一个异步函数来查询账户的 USDC 余额
 async function findUsdcBalance() {
