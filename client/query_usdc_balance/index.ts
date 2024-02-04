@@ -7,6 +7,7 @@ import {
 } from '@solana/web3.js'
 import 'dotenv/config'
 
+// 运行前需要在 https://faucet.circle.com/ 获取测试 USDC 空投，否则没有 USDC 余额不会显示
 /**
  * 运行：npx esrun client/query_usdc_balance/index.ts ,提供了默认地址
  * 如果需要指定用户地址，可以在命令行中传入，例如：npx esrun client/query_usdc_balance/index.ts <需要查询的 Solana 地址>
@@ -25,7 +26,7 @@ console.log('USDC Token Mint Address:', usdcTokenMintAddress.toBase58())
 
 // 用户的 Solana 地址，这里使用一个示例地址
 const userWalletAddress = new PublicKey(
-  process.argv[2] || '9zofpcQiKYW5f3M2NtSZyxM89mzPhNwiZv9FCXtFvVuE',
+  process.argv[2] || '7c9Fvf2imQamKdqQdkRHsBupHkexbPUj3TGa5K3gSu82',
 )
 
 // 如果用户账户余额为 0，则向用户账户请求 1 个 SOL
