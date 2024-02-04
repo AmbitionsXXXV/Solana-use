@@ -1,5 +1,7 @@
 # A repository about learn Solana
 
+## [Interact with solana](https://github.com/AmbitionsXXXV/Sol-learn/tree/main/client)
+
 ## [Simple entry solana program](https://github.com/AmbitionsXXXV/Sol-learn/tree/main/app/solana-program)
 
 ### run
