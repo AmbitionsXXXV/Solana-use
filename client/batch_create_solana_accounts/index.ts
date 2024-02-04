@@ -13,7 +13,7 @@ import path from 'path'
 
 /**
  * 运行前准备：
- * 保证发起人账户有足够的 SOL 用于支付交易费用，因为创建账户需要支付交易费用
+ * ❗❗❗保证发起人账户有足够的 SOL 用于支付交易费用，因为创建账户需要支付交易费用
  *
  * 运行
  * npx esrun client/batch_create_solana_accounts/index.ts
