@@ -54,6 +54,8 @@ async function createMultipleAccounts() {
         lamports: lamportsPerAccount, // 分配给新账户的 lamports 数量
         space: 0, // 新账户需要的存储空间大小，这里设置为 0，因为我们不在账户中存储任何数据
         programId: SystemProgram.programId, // 指定账户将由系统程序管理
+        // 关于 programId：在 Solana 上，账户的行为由程序（Program）控制，每个账户都有一个关联的程序，这个程序的公钨称为 programId
+        // 如果想要自己编写程序来控制账户的行为，可以使用自定义的 programId，自定义程序的开发和部署需要使用 Rust 编程语言和 Solana 提供的开发工具
       }),
     )
 
