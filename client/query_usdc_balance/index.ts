@@ -4,8 +4,13 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
   clusterApiUrl,
-} from '@solana/web3.js' // 导入用于连接到 Solana 网络和操作公钥的库
-import 'dotenv/config' // 使用 dotenv 来加载环境变量，方便管理配置和敏感信息
+} from '@solana/web3.js'
+import 'dotenv/config'
+
+/**
+ * 运行：npx esrun client/query_usdc_balance/index.ts ,提供了默认地址
+ * 如果需要指定用户地址，可以在命令行中传入，例如：npx esrun client/query_usdc_balance/index.ts <需要查询的 Solana 地址>
+ */
 
 // 设置连接到 Solana 网络的集群名称，这里使用 'devnet' 作为测试网络
 const CLUSTER_NAME = 'devnet'
@@ -20,7 +25,7 @@ console.log('USDC Token Mint Address:', usdcTokenMintAddress.toBase58())
 
 // 用户的 Solana 地址，这里使用一个示例地址
 const userWalletAddress = new PublicKey(
-  '9zofpcQiKYW5f3M2NtSZyxM89mzPhNwiZv9FCXtFvVuE',
+  process.argv[2] || '9zofpcQiKYW5f3M2NtSZyxM89mzPhNwiZv9FCXtFvVuE',
 )
 
 // 如果用户账户余额为 0，则向用户账户请求 1 个 SOL
