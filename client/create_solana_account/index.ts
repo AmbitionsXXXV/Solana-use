@@ -4,7 +4,7 @@ import { promises as fs } from 'fs' // 导入fs模块的promises API，用于异
 import path from 'path' // 导入path模块，用于处理文件和目录的路径
 
 // 定义批量生成账户的数量
-const NUM_ACCOUNTS = 4 // 你可以根据需要调整这个值
+const NUM_ACCOUNTS = 40 // 你可以根据需要调整这个值
 
 /**
  * 批量生成 Solana 基本账户并保存到 accounts.json 文件
@@ -22,26 +22,41 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
       secretKey: Array.from(keypair.secretKey), // 私钥用于签名交易，是一个 Uint8Array，使用 Array.from 方法转换为数组，以便于 JSON 序列化
     })
 
+    const keyFileName = `key${i}.json`
+    const scriptFileName = `mine_key${i}.sh`
+
+    // 保存密钥文件
     await fs.writeFile(
-      path.resolve(__dirname, `./key${i}.json`),
-      JSON.stringify(Array.from(keypair.secretKey)), // 使用 JSON.stringify 方法将 accounts 数组转换为JSON格式的字符串，JSON.stringify 的第二个和第三个参数用于格式化输出，使得生成的 JSON 文件更易读
+      path.resolve(__dirname, keyFileName),
+      JSON.stringify(Array.from(keypair.secretKey)),
     )
+
+    // 创建并保存脚本文件
+    const scriptContent = `#!/bin/zsh
+ore \\
+  --rpc https://shy-attentive-violet.solana-mainnet.quiknode.pro/ee38c36115db3e25f753e2ee2424eb9f998d2caf/ \\
+  --keypair ~/.config/solana/${keyFileName} \\
+  --priority-fee 2000 \\
+  mine \\
+  --threads 16
+`
+    await fs.writeFile(path.resolve(__dirname, scriptFileName), scriptContent)
   }
 
   try {
-    // 使用 fs.promises API 的 writeFile 方法异步写文件
     await fs.writeFile(
       path.resolve(__dirname, './accounts.json'),
-      JSON.stringify(accounts, null, 2), // 使用 JSON.stringify 方法将 accounts 数组转换为JSON格式的字符串，JSON.stringify 的第二个和第三个参数用于格式化输出，使得生成的 JSON 文件更易读
+      JSON.stringify(accounts, null, 2),
     )
     console.log(
-      `✅ Successfully generated and saved ${numAccounts} accounts to accounts.json`, // 如果文件写入成功，打印成功信息
+      `✅ Successfully generated and saved ${numAccounts} accounts to accounts.json`,
     )
   } catch (err) {
-    // 如果文件写入失败，打印错误信息
     console.error('Failed to save accounts:', err)
   }
 }
+
+await generateAndSaveAccounts(NUM_ACCOUNTS)
 
 // 调用异步函数，开始生成账户并保存到文件
 await generateAndSaveAccounts(NUM_ACCOUNTS)
