@@ -12,6 +12,7 @@ const NUM_ACCOUNTS = 40 // 你可以根据需要调整这个值
  */
 const generateAndSaveAccounts = async (numAccounts: number) => {
   const accounts = [] // 创建一个空数组，用于存储生成的账户信息
+  const scripts = []
 
   for (let i = 0; i < numAccounts; i++) {
     // 使用 Keypair 的 generate 方法生成一个新的密钥对，这是一个 Solana 账户的基础
@@ -24,6 +25,13 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
 
     const keyFileName = `key${i}.json`
     const scriptFileName = `mine_key${i}.sh`
+    const scriptClaimFileName = `mine_key${i}.sh`
+
+    scripts.push({
+      name: `miner-${i}`,
+      script: path.resolve(__dirname, scriptFileName),
+      interpreter: '/bin/zsh',
+    })
 
     // 保存密钥文件
     await fs.writeFile(
@@ -31,22 +39,41 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
       JSON.stringify(Array.from(keypair.secretKey)),
     )
 
+    const scriptClaimContent = `
+    #!/bin/zsh
+    ore \
+      --rpc https://shy-attentive-violet.solana-mainnet.quiknode.pro/ee38c36115db3e25f753e2ee2424eb9f998d2caf/ \
+      --keypair ~/.config/solana//${keyFileName} \
+      --priority-fee 300 \
+      claim
+    `
+
     // 创建并保存脚本文件
     const scriptContent = `#!/bin/zsh
 ore \\
-  --rpc https://shy-attentive-violet.solana-mainnet.quiknode.pro/ee38c36115db3e25f753e2ee2424eb9f998d2caf/ \\
+  --rpc https://purple-proud-gas.solana-mainnet.quiknode.pro/15fa3303dc92d4e3f3865234d2cb24ed0dac3c78/ \\
   --keypair ~/.config/solana/${keyFileName} \\
   --priority-fee 2000 \\
   mine \\
   --threads 16
 `
     await fs.writeFile(path.resolve(__dirname, scriptFileName), scriptContent)
+    await fs.writeFile(
+      path.resolve(__dirname, scriptClaimFileName),
+      scriptClaimContent,
+    )
   }
 
   try {
     await fs.writeFile(
       path.resolve(__dirname, './accounts.json'),
       JSON.stringify(accounts, null, 2),
+    )
+    await fs.writeFile(
+      path.resolve(__dirname, 'ecosystem.config.js'),
+      `module.exports = {
+        apps: ${JSON.stringify(scripts, null, 2)}
+      };`,
     )
     console.log(
       `✅ Successfully generated and saved ${numAccounts} accounts to accounts.json`,
