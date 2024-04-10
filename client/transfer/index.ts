@@ -4,6 +4,7 @@ import {
   PublicKey,
   SystemProgram,
   Transaction,
+  clusterApiUrl,
   sendAndConfirmTransaction,
 } from '@solana/web3.js'
 import 'dotenv/config'
@@ -30,19 +31,22 @@ console.log(`suppliedToPubkey: ${suppliedToPubkey}`, senderKeypair)
 const toPubkey = new PublicKey(suppliedToPubkey)
 
 // 创建到 Solana devnet 的连接
-const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed')
+// const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed')
+const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
 
 // 确认已加载发送者密钥对，接收者公钥，并且已连接到 Solana 网络
 console.log(
   `✅ Loaded our own keypair, the destination public key, and connected to Solana`,
 )
 
+const balance = await connection.getBalance(senderKeypair.publicKey)
+
 // 创建一个新的交易对象
 const transaction = new Transaction()
 
 // 定义要发送的 lamports 数量（1 SOL = 1,000,000,000 lamports）
 // 转 0.02 个 sol
-const LAMPORTS_TO_SEND = 0.01 * 1000000000
+const LAMPORTS_TO_SEND = balance - 5000
 
 /**
  * 使用 SystemProgram.transfer 创建转账指令。
@@ -55,6 +59,7 @@ const LAMPORTS_TO_SEND = 0.01 * 1000000000
 const sendSolInstruction = SystemProgram.transfer({
   fromPubkey: senderKeypair.publicKey,
   toPubkey,
+  // 默认发送所有余额
   lamports: LAMPORTS_TO_SEND,
 })
 
@@ -68,6 +73,14 @@ const signature = await sendAndConfirmTransaction(connection, transaction, [
 
 // 打印转账成功的消息和交易签名
 console.log(`💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `)
+
+console.log(
+  `Balance: ${(await connection.getBalance(senderKeypair.publicKey)) / 1000000000} Sol`,
+)
+console.log(
+  `receiver balance: ${(await connection.getBalance(toPubkey)) / 1000000000} Sol`,
+)
+
 console.log(`Transaction signature is ${signature}!`)
 
 // How much SOL did the transfer take? What is this in USD?
