@@ -11,6 +11,8 @@ import bs58 from 'bs58'
 import fs from 'fs'
 import path from 'path'
 
+// 使用 npx index.ts <归集地址> 运行
+
 // 从命令行参数中获取接收者的公钥和文件路径
 const suppliedToPubkey = process.argv[2] || null
 
@@ -24,7 +26,7 @@ if (!suppliedToPubkey) {
 const toPubkey = new PublicKey(suppliedToPubkey)
 
 // 创建到 Solana devnet 的连接
-const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed')
 
 // 确认已加载发送者密钥对，接收者公钥，并且已连接到 Solana 网络
 console.log(
