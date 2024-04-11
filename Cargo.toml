@@ -1,7 +1,9 @@
 [workspace]
+resolver = "2"
 members = [
   './app/basic_security_validation/',
   './app/deserialize_instruction_data/',
   './app/state-management/',
   './app/program_derived_address/',
+  "client_rs/generate_keypair",
 ]
