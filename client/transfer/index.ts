@@ -81,7 +81,7 @@ console.log(
   `receiver balance: ${(await connection.getBalance(toPubkey)) / 1000000000} Sol`,
 )
 
-console.log(`Transaction signature is ${signature}!`)
+console.log(`Transaction signature is https://explorer.solana.com/tx/${signature}`)
 
 // How much SOL did the transfer take? What is this in USD?
 // 转移的 SOL 数量是 5000 / 1,000,000,000 SOL。
