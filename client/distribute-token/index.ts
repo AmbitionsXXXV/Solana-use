@@ -1,13 +1,14 @@
+import { getKeypairFromEnvironment } from '@solana-developers/helpers'
 import {
   Connection,
   Keypair,
-  PublicKey,
   SystemProgram,
   Transaction,
   clusterApiUrl,
   sendAndConfirmTransaction,
 } from '@solana/web3.js'
 import bs58 from 'bs58'
+import 'dotenv/config'
 import fs from 'fs'
 import path from 'path'
 
@@ -24,8 +25,10 @@ if (!suppliedToPubkey) {
   process.exit(1)
 }
 
+const fromKeypair = getKeypairFromEnvironment('SECRET_KEY')
+
 // 将提供的接收者公钥字符串转换为 PublicKey 对象
-const fromPubkey = new PublicKey(suppliedToPubkey)
+const fromPubkey = fromKeypair.publicKey
 
 // 创建到 Solana devnet 的连接
 const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed')
@@ -86,7 +89,7 @@ for (const keypair of keypairs) {
 
     // 发送交易并等待确认
     const signature = await sendAndConfirmTransaction(connection, transaction, [
-      keypair,
+      fromKeypair,
     ])
 
     // 打印转账成功的消息和交易签名
