@@ -12,18 +12,10 @@ import 'dotenv/config'
 import fs from 'fs'
 import path from 'path'
 
-// 使用 npx index.ts <分发地址> <文件路径> <amount> 运行
+// 使用 npx index.ts <文件路径> <amount> 运行
 
-// 从命令行参数中获取接收者的公钥和文件路径
-const suppliedToPubkey = process.argv[2] || null
-const directoryPath = process.argv[3] || process.cwd() // 如果没有提供文件路径，则使用当前工作目录
-const amount = Number(process.argv[4]) || 1
-
-// 如果没有提供接收者公钥或文件路径，则提示用户输入并退出程序
-if (!suppliedToPubkey) {
-  console.log('填写分发地址')
-  process.exit(1)
-}
+const directoryPath = process.argv[2] || process.cwd() // 如果没有提供文件路径，则使用当前工作目录
+const amount = Number(process.argv[3]) || 1
 
 const fromKeypair = getKeypairFromEnvironment('SECRET_KEY')
 
