@@ -32,7 +32,7 @@ const toPubkey = new PublicKey(suppliedToPubkey)
 
 // 创建到 Solana devnet 的连接
 // const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed')
-const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
+const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed')
 
 // 确认已加载发送者密钥对，接收者公钥，并且已连接到 Solana 网络
 console.log(

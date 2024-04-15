@@ -4,7 +4,7 @@ import { promises as fs } from 'fs' // 导入fs模块的promises API，用于异
 import path from 'path' // 导入path模块，用于处理文件和目录的路径
 
 // 定义批量生成账户的数量
-const NUM_ACCOUNTS = 40 // 你可以根据需要调整这个值
+const NUM_ACCOUNTS = 80 // 你可以根据需要调整这个值
 
 /**
  * 批量生成 Solana 基本账户并保存到 accounts.json 文件
@@ -25,12 +25,18 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
 
     const keyFileName = `key${i}.json`
     const scriptFileName = `mine_key${i}.sh`
-    const scriptClaimFileName = `mine_key${i}.sh`
+    const scriptClaimFileName = `claim_key${i}.sh`
 
     scripts.push({
       name: `miner-${i}`,
-      script: path.resolve(__dirname, scriptFileName),
-      interpreter: '/bin/zsh',
+      script: `./${scriptFileName}`,
+      interpreter: '/bin/bash',
+    })
+    scripts.push({
+      name: `claim-${i}`,
+      script: `./${scriptClaimFileName}`,
+      interpreter: '/bin/bash',
+      restart_delay: 1000 * 60 * 30,
     })
 
     // 保存密钥文件
@@ -39,23 +45,22 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
       JSON.stringify(Array.from(keypair.secretKey)),
     )
 
-    const scriptClaimContent = `
-    #!/bin/zsh
-    ore \
-      --rpc https://shy-attentive-violet.solana-mainnet.quiknode.pro/ee38c36115db3e25f753e2ee2424eb9f998d2caf/ \
-      --keypair ~/.config/solana//${keyFileName} \
-      --priority-fee 300 \
+    const scriptClaimContent = `#!/bin/bash
+    /root/ore-cli/target/release/ore \\
+      --rpc https://purple-proud-gas.solana-mainnet.quiknode.pro/15fa3303dc92d4e3f3865234d2cb24ed0dac3c78/ \
+      --keypair ~/.config/solana//${keyFileName} \\
+      --priority-fee 300 \\
       claim
     `
 
     // 创建并保存脚本文件
-    const scriptContent = `#!/bin/zsh
-ore \\
+    const scriptContent = `#!/bin/bash
+/root/ore-cli/target/release/ore \\
   --rpc https://purple-proud-gas.solana-mainnet.quiknode.pro/15fa3303dc92d4e3f3865234d2cb24ed0dac3c78/ \\
   --keypair ~/.config/solana/${keyFileName} \\
-  --priority-fee 2000 \\
+  --priority-fee 5000 \\
   mine \\
-  --threads 16
+  --threads 60
 `
     await fs.writeFile(path.resolve(__dirname, scriptFileName), scriptContent)
     await fs.writeFile(
@@ -65,10 +70,6 @@ ore \\
   }
 
   try {
-    await fs.writeFile(
-      path.resolve(__dirname, './accounts.json'),
-      JSON.stringify(accounts, null, 2),
-    )
     await fs.writeFile(
       path.resolve(__dirname, 'ecosystem.config.js'),
       `module.exports = {
