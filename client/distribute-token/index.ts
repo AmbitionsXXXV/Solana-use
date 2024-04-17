@@ -50,18 +50,27 @@ for (const file of files) {
 // 确认已加载密钥对，并且已连接到 Solana 网络
 console.log(`✅ Loaded keypairs and connected to Solana`)
 
+// 获取最新的区块哈希
+const { blockhash } = await connection.getLatestBlockhash()
+
+// 创建一个新的交易对象
+const transaction = new Transaction({
+  recentBlockhash: blockhash,
+  feePayer: fromKeypair.publicKey, // 设置手续费支付者
+})
+let count = 0
+
 // 循环遍历每个地址并发送转账
 for (const keypair of keypairs) {
   try {
+    if (count === 20) break
+
     const balance = await connection.getBalance(fromPubkey)
 
     if (balance < amount) {
       console.log(`账户余额不足：${balance / 1000000000} Sol`)
       break
     }
-
-    // 创建一个新的交易对象
-    const transaction = new Transaction()
 
     // 定义要发送的 lamports 数量（1 SOL = 1,000,000,000 lamports）
     const LAMPORTS_TO_SEND = amount * 10 ** 9 // 保留一些余额以支付手续费
@@ -79,16 +88,11 @@ for (const keypair of keypairs) {
     // 将转账指令添加到交易中
     transaction.add(sendSolInstruction)
 
-    // 发送交易并等待确认
-    const signature = await sendAndConfirmTransaction(connection, transaction, [
-      fromKeypair,
-    ])
-
     // 打印转账成功的消息和交易签名
     console.log(
       `💸 Send ${LAMPORTS_TO_SEND / 1000000000} sol from ${fromPubkey} to ${keypair.publicKey}.`,
     )
-    console.log(`Transaction signature: https://explorer.solana.com/tx/${signature}`)
+
     console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
   } catch (error) {
     console.error(
@@ -96,7 +100,16 @@ for (const keypair of keypairs) {
       error,
     )
   }
+
+  count++
 }
+
+// 发送交易并等待确认
+const signature = await sendAndConfirmTransaction(connection, transaction, [
+  fromKeypair,
+])
+
+console.log(`Transaction signature: https://explorer.solana.com/tx/${signature}`)
 
 // 打印最终余额
 console.log(
