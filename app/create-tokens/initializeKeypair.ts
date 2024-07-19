@@ -1,6 +1,6 @@
 import * as web3 from '@solana/web3.js'
 import dotenv from 'dotenv'
-import * as fs from 'fs'
+import * as fs from 'node:fs'
 dotenv.config()
 
 export async function initializeKeypair(

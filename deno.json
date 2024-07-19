@@ -1,0 +1,7 @@
+{
+  "fmt": {
+    "semiColons": false,
+    "singleQuote": true
+  },
+  "lint": { "exclude": ["/**/*.ts"] }
+}

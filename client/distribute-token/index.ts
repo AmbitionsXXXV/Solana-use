@@ -9,8 +9,10 @@ import {
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import 'dotenv/config'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+
 
 // 使用 npx index.ts <文件路径> <amount> 运行
 
@@ -30,7 +32,7 @@ console.log(
   `✅ Loaded our own keypair, the destination public key, and connected to Solana`,
 )
 
-let keypairs: Keypair[] = []
+const keypairs: Keypair[] = []
 
 const files = fs.readdirSync(directoryPath)
 

@@ -1,7 +1,7 @@
-import { Keypair } from '@solana/web3.js' // 导入Keypair类，用于生成Solana账户的公钥和私钥
-import 'dotenv/config' // 导入dotenv/config模块，用于加载环境变量
-import { promises as fs } from 'fs' // 导入fs模块的promises API，用于异步文件操作
-import path from 'path' // 导入path模块，用于处理文件和目录的路径
+import { Keypair } from '@solana/web3.js'; // 导入Keypair类，用于生成Solana账户的公钥和私钥
+import 'dotenv/config'; // 导入dotenv/config模块，用于加载环境变量
+import { promises as fs } from 'node:fs'; // 导入fs模块的promises API，用于异步文件操作
+import path from 'node:path'; // 导入path模块，用于处理文件和目录的路径
 
 // 定义批量生成账户的数量
 const NUM_ACCOUNTS = 80 // 你可以根据需要调整这个值
@@ -46,8 +46,8 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
     )
 
     const scriptClaimContent = `#!/bin/bash
-    /root/ore-cli/target/release/ore \\
-      --rpc https://purple-proud-gas.solana-mainnet.quiknode.pro/15fa3303dc92d4e3f3865234d2cb24ed0dac3c78/ \
+    ore \\
+      --rpc https://fluent-crimson-asphalt.solana-mainnet.quiknode.pro/536344f59d2175300396d8a601ccb2841f43ac8b/ \
       --keypair ~/.config/solana//${keyFileName} \\
       --priority-fee 300 \\
       claim
@@ -55,12 +55,12 @@ const generateAndSaveAccounts = async (numAccounts: number) => {
 
     // 创建并保存脚本文件
     const scriptContent = `#!/bin/bash
-/root/ore-cli/target/release/ore \\
-  --rpc https://purple-proud-gas.solana-mainnet.quiknode.pro/15fa3303dc92d4e3f3865234d2cb24ed0dac3c78/ \\
+ore \\
+  --rpc https://fluent-crimson-asphalt.solana-mainnet.quiknode.pro/536344f59d2175300396d8a601ccb2841f43ac8b/ \\
   --keypair ~/.config/solana/${keyFileName} \\
   --priority-fee 5000 \\
   mine \\
-  --threads 60
+  --threads 24
 `
     await fs.writeFile(path.resolve(__dirname, scriptFileName), scriptContent)
     await fs.writeFile(
