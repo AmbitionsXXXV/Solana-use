@@ -1,15 +1,16 @@
 import { getKeypairFromEnvironment } from '@solana-developers/helpers';
 import {
-    Connection,
-    Keypair,
-    LAMPORTS_PER_SOL,
-    SystemProgram,
-    Transaction,
-    sendAndConfirmTransaction,
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  SystemProgram,
+  Transaction,
+  sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import 'dotenv/config'; // 使用 dotenv 来加载环境变量，便于管理敏感信息
 import { promises as fs } from 'node:fs'; // 导入fs模块的promises API，用于异步文件操作
 import path from 'node:path';
+import process from 'node:process';
 
 /**
  * 运行前准备：

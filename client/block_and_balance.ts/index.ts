@@ -1,5 +1,6 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
 import 'dotenv/config'
+import process from 'node:process'
 
 // 运行：
 // pnpx esrun client/block_and_balance.ts/index.ts <your mainnet wallet address>

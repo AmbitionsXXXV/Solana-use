@@ -1,15 +1,16 @@
 import {
-    Connection,
-    Keypair,
-    PublicKey,
-    SystemProgram,
-    Transaction,
-    clusterApiUrl,
-    sendAndConfirmTransaction,
+  Connection,
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  clusterApiUrl,
+  sendAndConfirmTransaction,
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import fs from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 
 // 使用 npx index.ts <归集地址> <文件路径> 运行
 

@@ -8,6 +8,7 @@ import {
   sendAndConfirmTransaction,
 } from '@solana/web3.js'
 import 'dotenv/config'
+import process from 'node:process'
 
 // 运行：
 // pnpx esrun client/transfer/index.ts <接收者公钥>

@@ -1,11 +1,13 @@
 // import { TOKEN_PROGRAM_ID } from '@solana/spl-token' // 导入 Solana 代币程序的 ID，用于与代币相关的操作
 import {
   Connection,
-  LAMPORTS_PER_SOL,
   PublicKey,
-  clusterApiUrl,
+  PublicKeyInitData,
+  clusterApiUrl
 } from '@solana/web3.js'
 import 'dotenv/config'
+import process from 'node:process'
+
 
 // 运行前需要在 https://faucet.circle.com/ 获取测试 USDC 空投，否则没有 USDC 余额不会显示
 /**
@@ -21,7 +23,7 @@ const CLUSTER_NAME = 'devnet'
 const connection = new Connection(clusterApiUrl(CLUSTER_NAME))
 
 // 通过环境变量获取 USDC 代币在 Solana devnet 上的地址
-const usdcTokenMintAddress = new PublicKey(process.env.USDC_DEVNET)
+const usdcTokenMintAddress = new PublicKey(process.env.USDC_DEVNET as PublicKeyInitData)
 console.log('USDC Token Mint Address:', usdcTokenMintAddress.toBase58())
 
 // 用户的 Solana 地址，这里使用一个示例地址

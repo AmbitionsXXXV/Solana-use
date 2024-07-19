@@ -1,4 +1,5 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import process from 'node:process'
 
 /**
  * 通过运行时参数获取公钥，并检查余额

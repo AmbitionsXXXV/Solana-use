@@ -1,7 +1,8 @@
-import { getKeypairFromEnvironment } from '@solana-developers/helpers'
-import { getOrCreateAssociatedTokenAccount, transfer } from '@solana/spl-token'
-import { Connection, Keypair, PublicKey, clusterApiUrl } from '@solana/web3.js'
-import 'dotenv/config' // 使用 dotenv 来加载环境变量，方便管理配置和敏感信息
+import { getKeypairFromEnvironment } from '@solana-developers/helpers';
+import { getOrCreateAssociatedTokenAccount, transfer } from '@solana/spl-token';
+import { Connection, Keypair, PublicKey, PublicKeyInitData, clusterApiUrl } from '@solana/web3.js';
+import 'dotenv/config'; // 使用 dotenv 来加载环境变量，方便管理配置和敏感信息
+import process from 'node:process';
 
 // 从环境变量中读取发送方的私钥，用于创建密钥对
 const senderSecretKey = getKeypairFromEnvironment('SECRET_KEY').secretKey
@@ -9,7 +10,7 @@ const senderSecretKey = getKeypairFromEnvironment('SECRET_KEY').secretKey
 const recipientPublicKeyStr =
   process.argv[2] || '3rMgEgiGrsqWbxBiKML14cNwTU3ze8zcvusaqsYzXxJz'
 // 通过环境变量获取 USDC 代币的 Mint 地址（即代币的唯一标识符）
-const usdcMintAddressStr = new PublicKey(process.env.USDC_DEVNET)
+const usdcMintAddressStr = new PublicKey(process.env.USDC_DEVNET as PublicKeyInitData)
 // 设置转账金额，注意：最终的金额需要考虑代币的小数位数
 const amount = 0.5
 
