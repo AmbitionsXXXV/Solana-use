@@ -6,4 +6,10 @@ members = [
   './app/state-management/',
   './app/program_derived_address/',
   "client_rs/generate_keypair",
+  "client_rs/pubkey",
 ]
+
+[workspace.dependencies]
+solana-program = "^1.18"
+solana-client = "^1.18"
+solana-sdk = "^1.18"
