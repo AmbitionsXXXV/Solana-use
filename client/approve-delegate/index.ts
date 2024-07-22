@@ -1,5 +1,5 @@
-import * as token from '@solana/spl-token'
-import * as web3 from '@solana/web3.js'
+import * as token from "@solana/spl-token"
+import * as web3 from "@solana/web3.js"
 
 /**
  * 创建一个用于在 Solana 区块链上授权代理进行代币操作的交易。
@@ -21,23 +21,23 @@ import * as web3 from '@solana/web3.js'
  *  - 适用于在应用程序或智能合约中实现代币的代理授权操作。
  */
 async function buildApproveTransaction(
-  account: web3.PublicKey,
-  delegate: web3.PublicKey,
-  owner: web3.PublicKey,
-  amount: number,
+	account: web3.PublicKey,
+	delegate: web3.PublicKey,
+	owner: web3.PublicKey,
+	amount: number,
 ): Promise<web3.Transaction> {
-  // 创建一个新的交易并加入代理授权的指令
-  const transaction = new web3.Transaction().add(
-    token.createApproveInstruction(
-      account, // 代币账户
-      delegate, // 代理账户
-      owner, // 账户的所有者
-      amount, // 授权数量
-    ),
-  )
+	// 创建一个新的交易并加入代理授权的指令
+	const transaction = new web3.Transaction().add(
+		token.createApproveInstruction(
+			account, // 代币账户
+			delegate, // 代理账户
+			owner, // 账户的所有者
+			amount, // 授权数量
+		),
+	)
 
-  // 返回构建的交易
-  return transaction
+	// 返回构建的交易
+	return transaction
 }
 
 export default buildApproveTransaction

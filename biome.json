@@ -1,0 +1,38 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "include": ["*.ts"],
+    "ignore": [
+      ".vscode/*",
+      "node_modules/*",
+      "./_types/*",
+      "./dist/*",
+      "./.turbo/*"
+    ],
+    "rules": {
+      "recommended": true
+    }
+  },
+  "formatter": {
+    "indentStyle": "tab",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "ignore": [
+      "node_modules/*",
+      "./.turbo/*",
+      ".vscode/*",
+      "./dist/*",
+      "./_types/*"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "semicolons": "asNeeded"
+    }
+  }
+}

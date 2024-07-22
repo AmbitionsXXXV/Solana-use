@@ -2,7 +2,7 @@
 import {
   Connection,
   PublicKey,
-  PublicKeyInitData,
+  type PublicKeyInitData,
   clusterApiUrl
 } from '@solana/web3.js'
 import 'dotenv/config'

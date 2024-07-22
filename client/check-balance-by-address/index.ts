@@ -1,5 +1,5 @@
-import { Connection, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
-import process from 'node:process'
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
+import process from "node:process"
 
 /**
  * 通过运行时参数获取公钥，并检查余额
@@ -7,10 +7,10 @@ import process from 'node:process'
  */
 const suppliedPublicKey = process.argv[2]
 if (!suppliedPublicKey) {
-  throw new Error('Provide a public key to check the balance of!')
+	throw new Error("Provide a public key to check the balance of!")
 }
 
-const connection = new Connection('https://api.devnet.solana.com', 'confirmed')
+const connection = new Connection("https://api.devnet.solana.com", "confirmed")
 
 const publicKey = new PublicKey(suppliedPublicKey)
 
@@ -19,5 +19,5 @@ const balanceInLamports = await connection.getBalance(publicKey)
 const balanceInSOL = balanceInLamports / LAMPORTS_PER_SOL
 
 console.log(
-  `✅ Finished! The balance for the wallet at address ${publicKey} is ${balanceInSOL}!`,
+	`✅ Finished! The balance for the wallet at address ${publicKey} is ${balanceInSOL}!`,
 )

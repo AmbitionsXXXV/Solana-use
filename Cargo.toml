@@ -6,7 +6,6 @@ members = [
   './app/state-management/',
   './app/program_derived_address/',
   "client_rs/generate_keypair",
-  "client_rs/pubkey",
 ]
 
 [workspace.dependencies]

@@ -1,5 +1,5 @@
-import * as token from '@solana/spl-token'
-import * as web3 from '@solana/web3.js'
+import * as token from "@solana/spl-token"
+import * as web3 from "@solana/web3.js"
 
 /**
  * 创建一个用于在 Solana 区块链上销毁代币的交易。
@@ -19,23 +19,23 @@ import * as web3 from '@solana/web3.js'
  *  - 适用于在应用程序或智能合约中实现代币的销毁操作。
  */
 async function buildBurnTransaction(
-  account: web3.PublicKey,
-  mint: web3.PublicKey,
-  owner: web3.PublicKey,
-  amount: number,
+	account: web3.PublicKey,
+	mint: web3.PublicKey,
+	owner: web3.PublicKey,
+	amount: number,
 ): Promise<web3.Transaction> {
-  // 创建一个新的交易并加入代币销毁的指令
-  const transaction = new web3.Transaction().add(
-    token.createBurnInstruction(
-      account, // 代币账户
-      mint, // 代币发行
-      owner, // 账户的所有者
-      amount, // 销毁数量
-    ),
-  )
+	// 创建一个新的交易并加入代币销毁的指令
+	const transaction = new web3.Transaction().add(
+		token.createBurnInstruction(
+			account, // 代币账户
+			mint, // 代币发行
+			owner, // 账户的所有者
+			amount, // 销毁数量
+		),
+	)
 
-  // 返回构建的交易
-  return transaction
+	// 返回构建的交易
+	return transaction
 }
 
 export default buildBurnTransaction

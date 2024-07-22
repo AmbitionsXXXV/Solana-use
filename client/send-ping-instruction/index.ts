@@ -1,6 +1,6 @@
-import { getKeypairFromEnvironment } from '@solana-developers/helpers'
-import web3 from '@solana/web3.js'
-import 'dotenv/config'
+import { getKeypairFromEnvironment } from "@solana-developers/helpers"
+import web3 from "@solana/web3.js"
+import "dotenv/config"
 
 /**
  * Solana Ping Transaction Script
@@ -18,17 +18,17 @@ import 'dotenv/config'
  */
 // PING 程序的公钥地址
 const PING_PROGRAM_ADDRESS = new web3.PublicKey(
-  'ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa',
+	"ChT1B39WKLS8qUrkLvFDXMhEJ4F1XZzwUNHUt4AU9aVa",
 )
 // PING 程序数据的公钥地址
 const PING_PROGRAM_DATA_ADDRESS = new web3.PublicKey(
-  'Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod',
+	"Ah9K7dQ8EHaZqcAsgBW8w37yN2eAy3koFmUn4x3CJtod",
 )
 
-const CLUSTER_NAME = 'devnet'
+const CLUSTER_NAME = "devnet"
 
 // 从环境变量获取支付者的密钥对
-const payer = getKeypairFromEnvironment('SECRET_KEY')
+const payer = getKeypairFromEnvironment("SECRET_KEY")
 console.log(`🔑 Loaded keypair ${payer.publicKey.toBase58()}!`)
 
 // 创建到 Solana Devnet 的连接
@@ -37,52 +37,54 @@ console.log(`⚡️ Connected to Solana ${CLUSTER_NAME} cluster!`)
 
 // 发送 PING 交易的异步函数
 async function sendPingTransaction(
-  connection: web3.Connection,
-  payer: web3.Keypair,
+	connection: web3.Connection,
+	payer: web3.Keypair,
 ) {
-  // 创建新的交易对象
-  const transaction = new web3.Transaction()
+	// 创建新的交易对象
+	const transaction = new web3.Transaction()
 
-  // 转换为 PublicKey 类型
-  const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
-  const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
+	// 转换为 PublicKey 类型
+	const programId = new web3.PublicKey(PING_PROGRAM_ADDRESS)
+	const pingProgramDataId = new web3.PublicKey(PING_PROGRAM_DATA_ADDRESS)
 
-  // 创建交易指令
-  // TransactionInstruction 这种方式提供了更高的灵活性，允许开发者直接定义交易的细节。它常用于与自定义程序（智能合约）交互，特别是当需要提供特定的参数或与非标准程序交互时
-  // 直接创建 TransactionInstruction：适用于需要更细粒度控制的场景，比如与自定义智能合约交互。这种方法提供了更大的灵活性，允许开发者明确指定交易中的每个参与账户的角色和权限
-  const instruction = new web3.TransactionInstruction({
-    keys: [
-      {
-        pubkey: pingProgramDataId,
-        // isSigner 表示账户是否是交易的签字人
-        isSigner: false,
-        // isWritable 表示在交易执行过程中是否写入账户信息
-        isWritable: true,
-      },
-    ],
-    programId,
-  })
+	// 创建交易指令
+	// TransactionInstruction 这种方式提供了更高的灵活性，允许开发者直接定义交易的细节。它常用于与自定义程序（智能合约）交互，特别是当需要提供特定的参数或与非标准程序交互时
+	// 直接创建 TransactionInstruction：适用于需要更细粒度控制的场景，比如与自定义智能合约交互。这种方法提供了更大的灵活性，允许开发者明确指定交易中的每个参与账户的角色和权限
+	const instruction = new web3.TransactionInstruction({
+		keys: [
+			{
+				pubkey: pingProgramDataId,
+				// isSigner 表示账户是否是交易的签字人
+				isSigner: false,
+				// isWritable 表示在交易执行过程中是否写入账户信息
+				isWritable: true,
+			},
+		],
+		programId,
+	})
 
-  // 将指令添加到交易中
-  transaction.add(instruction)
+	// 将指令添加到交易中
+	transaction.add(instruction)
 
-  // 发送并确认交易
-  const signature = await web3.sendAndConfirmTransaction(connection, transaction, [
-    payer,
-  ])
+	// 发送并确认交易
+	const signature = await web3.sendAndConfirmTransaction(
+		connection,
+		transaction,
+		[payer],
+	)
 
-  // 输出交易完成信息和签名
-  console.log(`✅ Transaction completed! Signature is ${signature}`)
+	// 输出交易完成信息和签名
+	console.log(`✅ Transaction completed! Signature is ${signature}`)
 
-  // 提供在 Solana Explorer 中查看交易的链接
-  console.log(
-    `You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`,
-  )
+	// 提供在 Solana Explorer 中查看交易的链接
+	console.log(
+		`You can view your transaction on the Solana Explorer at:\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`,
+	)
 }
 
 // 如果你的钱包没有足够的 SOL，你可以使用下面的代码向你的钱包发送 1 SOL：
 if ((await connection.getBalance(payer.publicKey)) === 0) {
-  await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1)
+	await connection.requestAirdrop(payer.publicKey, web3.LAMPORTS_PER_SOL * 1)
 }
 
 // 调用发送 PING 交易的函数

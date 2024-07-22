@@ -1,5 +1,5 @@
-import * as token from '@solana/spl-token'
-import * as web3 from '@solana/web3.js'
+import * as token from "@solana/spl-token"
+import * as web3 from "@solana/web3.js"
 
 /**
  * 创建一个用于在 Solana 区块链上转移代币的交易。
@@ -21,23 +21,23 @@ import * as web3 from '@solana/web3.js'
  *  - 适用于在应用程序或智能合约中实现代币的转移操作。
  */
 async function buildTransferTransaction(
-  source: web3.PublicKey,
-  destination: web3.PublicKey,
-  owner: web3.PublicKey,
-  amount: number,
+	source: web3.PublicKey,
+	destination: web3.PublicKey,
+	owner: web3.PublicKey,
+	amount: number,
 ): Promise<web3.Transaction> {
-  // 创建一个新的交易并加入代币转移的指令
-  const transaction = new web3.Transaction().add(
-    token.createTransferInstruction(
-      source, // 源代币账户
-      destination, // 目标代币账户
-      owner, // 源账户的所有者
-      amount, // 转移数量
-    ),
-  )
+	// 创建一个新的交易并加入代币转移的指令
+	const transaction = new web3.Transaction().add(
+		token.createTransferInstruction(
+			source, // 源代币账户
+			destination, // 目标代币账户
+			owner, // 源账户的所有者
+			amount, // 转移数量
+		),
+	)
 
-  // 返回构建的交易
-  return transaction
+	// 返回构建的交易
+	return transaction
 }
 
 export default buildTransferTransaction

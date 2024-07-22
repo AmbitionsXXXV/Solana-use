@@ -1,5 +1,5 @@
-import * as token from '@solana/spl-token'
-import * as web3 from '@solana/web3.js'
+import * as token from "@solana/spl-token"
+import * as web3 from "@solana/web3.js"
 
 /**
  * 创建一个用于在 Solana 区块链上撤销代理权限的交易。
@@ -17,19 +17,19 @@ import * as web3 from '@solana/web3.js'
  *  - 适用于在应用程序或智能合约中实现代理权限的撤销操作。
  */
 async function buildRevokeTransaction(
-  account: web3.PublicKey,
-  owner: web3.PublicKey,
+	account: web3.PublicKey,
+	owner: web3.PublicKey,
 ): Promise<web3.Transaction> {
-  // 创建一个新的交易并加入撤销代理权限的指令
-  const transaction = new web3.Transaction().add(
-    token.createRevokeInstruction(
-      account, // 代币账户
-      owner, // 账户的所有者
-    ),
-  )
+	// 创建一个新的交易并加入撤销代理权限的指令
+	const transaction = new web3.Transaction().add(
+		token.createRevokeInstruction(
+			account, // 代币账户
+			owner, // 账户的所有者
+		),
+	)
 
-  // 返回构建的交易
-  return transaction
+	// 返回构建的交易
+	return transaction
 }
 
 export default buildRevokeTransaction

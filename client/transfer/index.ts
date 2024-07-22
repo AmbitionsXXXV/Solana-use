@@ -1,14 +1,14 @@
-import { getKeypairFromEnvironment } from '@solana-developers/helpers'
+import { getKeypairFromEnvironment } from "@solana-developers/helpers"
 import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  clusterApiUrl,
-  sendAndConfirmTransaction,
-} from '@solana/web3.js'
-import 'dotenv/config'
-import process from 'node:process'
+	Connection,
+	PublicKey,
+	SystemProgram,
+	Transaction,
+	clusterApiUrl,
+	sendAndConfirmTransaction,
+} from "@solana/web3.js"
+import "dotenv/config"
+import process from "node:process"
 
 // 运行：
 // pnpx esrun client/transfer/index.ts <接收者公钥>
@@ -18,12 +18,12 @@ const suppliedToPubkey = process.argv[2] || null
 
 // 如果没有提供接收者公钥，则提示用户输入并退出程序
 if (!suppliedToPubkey) {
-  console.log(`Please provide a public key to send to`)
-  process.exit(1)
+	console.log("Please provide a public key to send to")
+	process.exit(1)
 }
 
 // 从环境变量中获取发送者的密钥对
-const senderKeypair = getKeypairFromEnvironment('SECRET_KEY')
+const senderKeypair = getKeypairFromEnvironment("SECRET_KEY")
 
 // 打印发送者密钥对和接收者公钥，用于验证
 console.log(`suppliedToPubkey: ${suppliedToPubkey}`, senderKeypair)
@@ -33,11 +33,11 @@ const toPubkey = new PublicKey(suppliedToPubkey)
 
 // 创建到 Solana devnet 的连接
 // const connection = new Connection('https://api.mainnet-beta.solana.com', 'confirmed')
-const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed')
+const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed")
 
 // 确认已加载发送者密钥对，接收者公钥，并且已连接到 Solana 网络
 console.log(
-  `✅ Loaded our own keypair, the destination public key, and connected to Solana`,
+	"✅ Loaded our own keypair, the destination public key, and connected to Solana",
 )
 
 const balance = await connection.getBalance(senderKeypair.publicKey)
@@ -58,10 +58,10 @@ const LAMPORTS_TO_SEND = balance - 5000
  * 这是一个用于执行 Solana 系统程序中标准 SOL 转账的简化方法。
  */
 const sendSolInstruction = SystemProgram.transfer({
-  fromPubkey: senderKeypair.publicKey,
-  toPubkey,
-  // 默认发送所有余额
-  lamports: LAMPORTS_TO_SEND,
+	fromPubkey: senderKeypair.publicKey,
+	toPubkey,
+	// 默认发送所有余额
+	lamports: LAMPORTS_TO_SEND,
 })
 
 // 将转账指令添加到交易中
@@ -69,20 +69,24 @@ transaction.add(sendSolInstruction)
 
 // 发送交易并等待确认，使用发送者的密钥对进行签名
 const signature = await sendAndConfirmTransaction(connection, transaction, [
-  senderKeypair,
+	senderKeypair,
 ])
 
 // 打印转账成功的消息和交易签名
-console.log(`💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `)
-
 console.log(
-  `Balance: ${(await connection.getBalance(senderKeypair.publicKey)) / 1000000000} Sol`,
-)
-console.log(
-  `receiver balance: ${(await connection.getBalance(toPubkey)) / 1000000000} Sol`,
+	`💸 Finished! Sent ${LAMPORTS_TO_SEND} to the address ${toPubkey}. `,
 )
 
-console.log(`Transaction signature is https://explorer.solana.com/tx/${signature}`)
+console.log(
+	`Balance: ${(await connection.getBalance(senderKeypair.publicKey)) / 1000000000} Sol`,
+)
+console.log(
+	`receiver balance: ${(await connection.getBalance(toPubkey)) / 1000000000} Sol`,
+)
+
+console.log(
+	`Transaction signature is https://explorer.solana.com/tx/${signature}`,
+)
 
 // How much SOL did the transfer take? What is this in USD?
 // 转移的 SOL 数量是 5000 / 1,000,000,000 SOL。
