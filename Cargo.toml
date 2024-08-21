@@ -5,10 +5,15 @@ members = [
   './app/deserialize_instruction_data/',
   './app/state-management/',
   './app/program_derived_address/',
-  "client_rs/generate_keypair",
+  "crates/*",
 ]
 
 [workspace.dependencies]
 solana-program = "^1.18"
 solana-client = "^1.18"
 solana-sdk = "^1.18"
+solana-transaction-status = "^1.18"
+solana-account-decoder = "^1.18"
+spl-token = "^4"
+anyhow = "1.0.86"
+serde = { version = "1.0.207", features = ["derive"] }
