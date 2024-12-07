@@ -73,16 +73,14 @@ pub fn add_movie_review(
         return Err(ProgramError::MissingRequiredSignature);
     }
 
-    let (pda, bump_seed) = Pubkey::find_program_address(
-        &[initializer.key.as_ref(), title.as_bytes().as_ref()],
-        program_id,
-    );
+    let (pda, bump_seed) =
+        Pubkey::find_program_address(&[initializer.key.as_ref(), title.as_bytes()], program_id);
     if pda != *pda_account.key {
         msg!("Invalid seeds for PDA");
         return Err(ProgramError::InvalidArgument);
     }
 
-    if rating > 5 || rating < 1 {
+    if !(1..=5).contains(&rating) {
         msg!("Rating cannot be higher than 5");
         return Err(ReviewError::InvalidRating.into());
     }
@@ -110,11 +108,7 @@ pub fn add_movie_review(
             pda_account.clone(),
             system_program.clone(),
         ],
-        &[&[
-            initializer.key.as_ref(),
-            title.as_bytes().as_ref(),
-            &[bump_seed],
-        ]],
+        &[&[initializer.key.as_ref(), title.as_bytes(), &[bump_seed]]],
     )?;
 
     msg!("PDA created: {}", pda);
@@ -216,10 +210,7 @@ pub fn update_movie_review(
     msg!("review title: {}", account_data.title);
 
     let (pda, _bump_seed) = Pubkey::find_program_address(
-        &[
-            initializer.key.as_ref(),
-            account_data.title.as_bytes().as_ref(),
-        ],
+        &[initializer.key.as_ref(), account_data.title.as_bytes()],
         program_id,
     );
     if pda != *pda_account.key {
@@ -233,7 +224,7 @@ pub fn update_movie_review(
         return Err(ReviewError::UninitializedAccount.into());
     }
 
-    if rating > 5 || rating < 1 {
+    if !(1..=5).contains(&rating) {
         msg!("Invalid Rating");
         return Err(ReviewError::InvalidRating.into());
     }
