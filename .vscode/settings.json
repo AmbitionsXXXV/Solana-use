@@ -7,5 +7,14 @@
     "pnpx",
     "Sysvar",
     "thiserror"
-  ]
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "biome.lspBin": "node_modules/@biomejs/biome/bin/biome"
 }

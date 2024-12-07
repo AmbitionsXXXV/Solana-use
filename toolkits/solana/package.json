@@ -1,0 +1,22 @@
+{
+	"name": "@xxhh/toolkits-solana",
+	"version": "0.0.1",
+	"private": true,
+	"type": "module",
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "tsx watch src/index.ts",
+		"build": "tsup",
+		"lint": "biome check .",
+		"format": "biome format . --write"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@solana/web3.js": "^1.95.8",
+		"@types/node": "^20.11.24",
+		"@xxhh/toolkits-logger": "workspace:*",
+		"tsup": "^8.0.2",
+		"tsx": "^4.7.1",
+		"typescript": "^5.3.3"
+	}
+}

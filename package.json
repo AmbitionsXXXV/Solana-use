@@ -6,7 +6,9 @@
     "load_keypair": "esrun ./client/load_keypair/index.ts",
     "batch_create_solana_accounts": "esrun ./client/batch_create_solana_accounts/index.ts",
     "transfer_usdc": "esrun ./client/transfer_usdc/index.ts",
-    "generate_keypair": "esrun ./client/generate_keypair/index.ts"
+    "generate_keypair": "esrun ./client/generate_keypair/index.ts",
+    "solana:dev": "pnpm --filter @xxhh/toolkits-solana dev",
+    "build": "turbo run build"
   },
   "packageManager": "pnpm@9.15.0",
   "dependencies": {
@@ -22,6 +24,7 @@
     "typescript": "^5.7.2"
   },
   "devDependencies": {
+    "tsx": "^4.19.2",
     "turbo": "^2.3.3"
   }
 }
