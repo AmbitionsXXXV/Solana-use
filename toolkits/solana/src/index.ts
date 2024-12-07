@@ -1,17 +1,21 @@
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token"
-import { Connection, PublicKey } from "@solana/web3.js"
+import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 import { type LogMessage, logger } from "@xxhh/toolkits-logger"
 
 // -- 定义返回类型接口
 interface TokenAccount {
 	address: string
 	mint: string
+	rentLamports: number
+	rentSol: number
 }
 
 interface TokenAccountsResult {
 	totalAccounts: number
 	closableAccounts: number
 	accounts: TokenAccount[]
+	totalRentLamports: number
+	totalRentSol: number
 }
 
 // -- 网络连接配置
@@ -36,30 +40,54 @@ async function getClosableTokenAccounts(
 			},
 		)
 
-		const closableAccounts = tokenAccounts.value
-			.filter((account) => {
-				const tokenAmount = account.account.data.parsed.info.tokenAmount
-				return tokenAmount.uiAmount === 0
-			})
-			.map((account) => ({
-				address: account.pubkey.toString(),
-				mint: account.account.data.parsed.info.mint,
-			}))
+		const accountInfos = await Promise.all(
+			tokenAccounts.value
+				.filter((account) => {
+					const tokenAmount = account.account.data.parsed.info.tokenAmount
+					return tokenAmount.uiAmount === 0
+				})
+				.map(async (account) => {
+					const accountInfo = await connection.getAccountInfo(account.pubkey)
+					const rentLamports = accountInfo?.lamports || 0
+					return {
+						address: account.pubkey.toString(),
+						mint: account.account.data.parsed.info.mint,
+						rentLamports,
+						rentSol: rentLamports / LAMPORTS_PER_SOL,
+					}
+				}),
+		)
 
-		// -- 使用新的日志模块
+		const totalRentLamports = accountInfos.reduce(
+			(sum, account) => sum + account.rentLamports,
+			0,
+		)
+		const totalRentSol = totalRentLamports / LAMPORTS_PER_SOL
+
 		logger.info(`总代币账户数量: ${tokenAccounts.value.length}`)
-		logger.info(`可关闭账户数量: ${closableAccounts.length}`)
+		logger.info(`可关闭账户数量: ${accountInfos.length}`)
+		logger.success({
+			totalRentLamports,
+			totalRentSol: totalRentSol.toFixed(8),
+		})
 
-		closableAccounts.forEach(({ address, mint }, index) => {
+		accountInfos.forEach((account, index) => {
 			logger.debug(`\n可关闭账户 ${index + 1}:`)
-			logger.debug(`账户地址: ${address}`)
-			logger.debug(`代币 Mint: ${mint}`)
+			logger.debug(`账户地址: ${account.address}`)
+			logger.debug(`代币 Mint: ${account.mint}`)
+			logger.debug(
+				`可返还租金: ${account.rentLamports} lamports (${account.rentSol.toFixed(
+					4,
+				)} SOL)`,
+			)
 		})
 
 		return {
 			totalAccounts: tokenAccounts.value.length,
-			closableAccounts: closableAccounts.length,
-			accounts: closableAccounts,
+			closableAccounts: accountInfos.length,
+			accounts: accountInfos,
+			totalRentLamports,
+			totalRentSol,
 		}
 	} catch (error) {
 		logger.error("查询代币账户失败:")
@@ -77,6 +105,11 @@ async function main() {
 		const result = await getClosableTokenAccounts("钱包地址")
 		logger.success("查询完成")
 		logger.table(result.accounts)
+		logger.success(
+			`总计可返还租金: ${result.totalRentLamports} lamports (${result.totalRentSol.toFixed(
+				8,
+			)} SOL)`,
+		)
 	} catch (error) {
 		logger.error("执行失败:")
 		logger.error(error as LogMessage)
