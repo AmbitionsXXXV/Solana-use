@@ -74,9 +74,7 @@ async function getClosableTokenAccounts(
 async function main() {
 	try {
 		logger.info("开始查询可关闭的代币账户...")
-		const result = await getClosableTokenAccounts(
-			"EDLWe9ry2SfTNzdAq3ikEyMgmk6JDWBpKbYMGqCcwofD",
-		)
+		const result = await getClosableTokenAccounts("钱包地址")
 		logger.success("查询完成")
 		logger.table(result.accounts)
 	} catch (error) {
