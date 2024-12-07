@@ -22,11 +22,11 @@ impl MovieAccountState {
 
     // 计算账户的大小，以便初始化
     pub fn get_account_size(title: String, description: String) -> usize {
-        return (4 + MovieAccountState::DISCRIMINATOR.len())
+        (4 + MovieAccountState::DISCRIMINATOR.len())
             + 1
             + 1
             + (4 + title.len())
-            + (4 + description.len());
+            + (4 + description.len())
     }
 }
 
@@ -61,7 +61,7 @@ impl MovieComment {
 
     // 计算账户的大小，以便初始化
     pub fn get_account_size(comment: String) -> usize {
-        return (4 + MovieComment::DISCRIMINATOR.len()) + 1 + 32 + 32 + (4 + comment.len()) + 8;
+        (4 + MovieComment::DISCRIMINATOR.len()) + 1 + 32 + 32 + (4 + comment.len()) + 8
     }
 }
 
