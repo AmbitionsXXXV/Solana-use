@@ -237,7 +237,7 @@ async function getClosableTokenAccounts(
 			logger.debug(`代币 Mint: ${account.mint}`)
 			logger.debug(
 				`可返还租金: ${account.rentLamports} lamports (${account.rentSol.toFixed(
-					4,
+					8,
 				)} SOL)`,
 			)
 		})
