@@ -171,6 +171,9 @@ class TokenAccountManager {
 		const balanceAfterSOL = balanceAfter / LAMPORTS_PER_SOL
 		const actualRecovered = balanceAfterSOL - balanceBeforeSOL
 
+		// -- 获取 GAS 总消耗
+		const gasConsumed = actualRecovered - totalRentRecovered
+
 		// -- 输出最终统计结果
 		logger.success("\n====== 处理完成 ======")
 		logger.info(`执行前钱包余额: ${balanceBeforeSOL.toFixed(8)} SOL`)
@@ -179,6 +182,9 @@ class TokenAccountManager {
 		logger.info(`成功关闭: ${successCount} 个账户`)
 		logger.info(`失败数量: ${failCount} 个账户`)
 		logger.success(`预计回收租金: ${totalRentRecovered.toFixed(8)} SOL`)
+		logger.success(
+			`GAS 消耗: ${gasConsumed} lamports, ${gasConsumed / LAMPORTS_PER_SOL} SOL`,
+		)
 	}
 }
 
