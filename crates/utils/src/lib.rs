@@ -4,7 +4,10 @@ use solana_sdk::commitment_config::CommitmentConfig;
 use std::{env, path::Path};
 use time::{macros::format_description, UtcOffset};
 use tracing::warn;
-use tracing_subscriber::{fmt::time::OffsetTime, EnvFilter};
+use tracing_subscriber::{
+    fmt::{format::json, time::OffsetTime},
+    EnvFilter,
+};
 
 /// 初始化 RPC 客户端
 ///
@@ -50,8 +53,14 @@ pub fn init_tracing() {
     );
 
     tracing_subscriber::fmt()
+        .event_format(json().flatten_event(true))
+        .pretty()
         .with_timer(timer)
         .with_env_filter(EnvFilter::from_default_env())
+        .with_writer(std::io::stdout)
+        .with_line_number(false)
+        .with_file(false)
+        .with_target(false)
         .init();
 }
 
