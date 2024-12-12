@@ -287,8 +287,8 @@ async function main() {
 			`总计可返还租金: ${result.totalRentLamports} lamports (${result.totalRentSol.toFixed(8)} SOL)`,
 		)
 
-		logger.info("开始执行账户关闭操作...")
-		await manager.batchCloseAccounts(result.accounts)
+		// logger.info("开始执行账户关闭操作...")
+		// await manager.batchCloseAccounts(result.accounts)
 	} catch (error) {
 		logger.error("执行失败:")
 		logger.error(error as LogMessage)
