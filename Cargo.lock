@@ -3958,9 +3958,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "solana_toolkit"
+name = "solana_toolkits"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "solana-account-decoder",
  "solana-client",
  "solana-program",
@@ -3968,6 +3969,7 @@ dependencies = [
  "spl-token",
  "tracing",
  "tracing-subscriber",
+ "utils",
 ]
 
 [[package]]
@@ -4752,6 +4754,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "dotenv",
+ "solana-client",
+ "solana-sdk",
  "time",
  "tracing",
  "tracing-subscriber",
