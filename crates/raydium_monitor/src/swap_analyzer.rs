@@ -22,37 +22,37 @@ use crate::utils::log_swap_operation;
 ///
 /// 返回 `Result<()>`
 pub async fn analyze_swap_info(signature: String) -> Result<()> {
-  // 步骤 1：创建 RPC 客户端
-  let rpc_client = init_rpc_client(CommitmentConfig::confirmed())?;
+    // 步骤 1：创建 RPC 客户端
+    let rpc_client = init_rpc_client(CommitmentConfig::confirmed())?;
 
-  // 步骤 2：获取交易详情
-  let tx = get_transaction_details(&signature).await?;
-  let ray = String::from("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8");
-  let (instruction_data, inner_ixs) = process_transaction(&tx, &ray)?;
+    // 步骤 2：获取交易详情
+    let tx = get_transaction_details(&signature).await?;
+    let ray = String::from("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8");
+    let (instruction_data, inner_ixs) = process_transaction(&tx, &ray)?;
 
-  // 步骤 3：处理指令数据
-  match instruction_data.value {
-    InstructionDataValue::AccountsAndData { accounts, data } => {
-      // 解码指令数据
-      let decoded_data = decode_instruction_data(&data)?;
+    // 步骤 3：处理指令数据
+    match instruction_data.value {
+        InstructionDataValue::AccountsAndData { accounts, data } => {
+            // 解码指令数据
+            let decoded_data = decode_instruction_data(&data)?;
 
-      // 步骤 4：获取代币账户信息
-      let (source_address, dest_address) =
-        get_token_addresses(&rpc_client, &accounts).await?;
+            // 步骤 4：获取代币账户信息
+            let (source_address, dest_address) =
+                get_token_addresses(&rpc_client, &accounts).await?;
 
-      // 步骤 6：根据代币地址判断操作类型并记录日志
-      log_swap_operation(
-        accounts,
-        source_address,
-        dest_address,
-        decoded_data,
-        inner_ixs,
-      )?;
+            // 步骤 6：根据代币地址判断操作类型并记录日志
+            log_swap_operation(
+                accounts,
+                source_address,
+                dest_address,
+                decoded_data,
+                inner_ixs,
+            )?;
+        }
+        InstructionDataValue::Amount(_) => {}
     }
-    InstructionDataValue::Amount(_) => {}
-  }
 
-  Ok(())
+    Ok(())
 }
 
 /// 获取实际交换数量
@@ -65,25 +65,22 @@ pub async fn analyze_swap_info(signature: String) -> Result<()> {
 /// # 返回值
 ///
 /// 返回实际交换数量
-pub fn get_actual_amount(
-  decimals: u8,
-  inner_ixs: Option<UiInnerInstructions>,
-) -> u64 {
-  if inner_ixs.is_none() {
-    return 0;
-  }
+pub fn get_actual_amount(decimals: u8, inner_ixs: Option<UiInnerInstructions>) -> u64 {
+    if inner_ixs.is_none() {
+        return 0;
+    }
 
-  let parsed_ix = process_instruction(&inner_ixs.unwrap().instructions[1], "")
-    .unwrap()
-    .value;
+    let parsed_ix = process_instruction(&inner_ixs.unwrap().instructions[1], "")
+        .unwrap()
+        .value;
 
-  match parsed_ix {
-    InstructionDataValue::AccountsAndData {
-      accounts: _,
-      data: _,
-    } => 0,
-    InstructionDataValue::Amount(amount) => amount / 10u64.pow(decimals as u32),
-  }
+    match parsed_ix {
+        InstructionDataValue::AccountsAndData {
+            accounts: _,
+            data: _,
+        } => 0,
+        InstructionDataValue::Amount(amount) => amount / 10u64.pow(decimals as u32),
+    }
 }
 
 /// 计算滑点
@@ -97,5 +94,5 @@ pub fn get_actual_amount(
 ///
 /// 返回滑点百分比
 pub fn calculate_slippage(actual: f64, expected: f64) -> f64 {
-  (actual - expected) / expected * 100.00
+    (actual - expected) / expected * 100.00
 }
