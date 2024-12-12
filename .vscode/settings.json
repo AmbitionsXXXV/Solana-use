@@ -4,6 +4,7 @@
     "esrun",
     "kerpair",
     "LAMPORTS",
+    "opentime",
     "pnpx",
     "Sysvar",
     "thiserror"
