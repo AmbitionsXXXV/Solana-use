@@ -288,7 +288,7 @@ dependencies = [
  "nom",
  "num-traits",
  "rusticata-macros",
- "thiserror",
+ "thiserror 1.0.63",
  "time",
 ]
 
@@ -429,7 +429,7 @@ dependencies = [
  "ahash 0.8.11",
  "borsh 1.5.1",
  "solana-program",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -709,7 +709,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "190baaad529bcfbde9e1a19022c42781bdb6ff9de25721abdb8fd98c0807730b"
 dependencies = [
  "libc",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -1896,7 +1896,7 @@ dependencies = [
  "ark-bn254",
  "ark-ff",
  "num-bigint 0.4.4",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -2018,7 +2018,7 @@ dependencies = [
  "num-derive 0.3.3",
  "num-traits",
  "solana-program",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -2488,7 +2488,7 @@ dependencies = [
  "ahash 0.8.11",
  "borsh 1.5.1",
  "solana-program",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -2523,7 +2523,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
  "tracing",
 ]
@@ -2541,7 +2541,7 @@ dependencies = [
  "rustls",
  "rustls-native-certs",
  "slab",
- "thiserror",
+ "thiserror 1.0.63",
  "tinyvec",
  "tracing",
 ]
@@ -2665,7 +2665,7 @@ dependencies = [
  "solana-sdk",
  "solana-transaction-status",
  "spl-token",
- "thiserror",
+ "thiserror 2.0.6",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -3054,9 +3054,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.125"
+version = "1.0.133"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83c8e735a073ccf5be70aa8066aa984eaf2fa000db6c8d0100ae605b366d31ed"
+checksum = "c7fceb2473b9166b2294ef05efcb65a3db80803f0b03ef86a5fc88a2b85ee377"
 dependencies = [
  "itoa",
  "memchr",
@@ -3247,7 +3247,7 @@ dependencies = [
  "spl-token-2022",
  "spl-token-group-interface",
  "spl-token-metadata-interface",
- "thiserror",
+ "thiserror 1.0.63",
  "zstd",
 ]
 
@@ -3262,7 +3262,7 @@ dependencies = [
  "rpassword",
  "solana-remote-wallet",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "tiny-bip39",
  "uriparse",
  "url",
@@ -3297,7 +3297,7 @@ dependencies = [
  "solana-thin-client",
  "solana-tpu-client",
  "solana-udp-client",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
 ]
 
@@ -3333,7 +3333,7 @@ dependencies = [
  "solana-measure",
  "solana-metrics",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
 ]
 
@@ -3359,7 +3359,7 @@ dependencies = [
  "sha2 0.10.8",
  "solana-frozen-abi-macro",
  "subtle",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3407,7 +3407,7 @@ dependencies = [
  "log",
  "reqwest",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3510,7 +3510,7 @@ dependencies = [
  "solana-frozen-abi",
  "solana-frozen-abi-macro",
  "solana-sdk-macro",
- "thiserror",
+ "thiserror 1.0.63",
  "tiny-bip39",
  "wasm-bindgen",
  "zeroize",
@@ -3541,7 +3541,7 @@ dependencies = [
  "solana-metrics",
  "solana-sdk",
  "solana_rbpf",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3561,7 +3561,7 @@ dependencies = [
  "solana-account-decoder",
  "solana-rpc-client-api",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
  "tokio-stream",
  "tokio-tungstenite",
@@ -3592,7 +3592,7 @@ dependencies = [
  "solana-rpc-client-api",
  "solana-sdk",
  "solana-streamer",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
 ]
 
@@ -3621,7 +3621,7 @@ dependencies = [
  "qstring",
  "semver",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "uriparse",
 ]
 
@@ -3670,7 +3670,7 @@ dependencies = [
  "solana-transaction-status",
  "solana-version",
  "spl-token-2022",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3683,7 +3683,7 @@ dependencies = [
  "solana-clap-utils",
  "solana-rpc-client",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3736,7 +3736,7 @@ dependencies = [
  "solana-logger",
  "solana-program",
  "solana-sdk-macro",
- "thiserror",
+ "thiserror 1.0.63",
  "uriparse",
  "wasm-bindgen",
 ]
@@ -3787,7 +3787,7 @@ dependencies = [
  "solana-metrics",
  "solana-perf",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
  "x509-parser",
 ]
@@ -3827,7 +3827,7 @@ dependencies = [
  "solana-rpc-client",
  "solana-rpc-client-api",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
 ]
 
@@ -3853,7 +3853,7 @@ dependencies = [
  "spl-memo",
  "spl-token",
  "spl-token-2022",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3867,7 +3867,7 @@ dependencies = [
  "solana-net-utils",
  "solana-sdk",
  "solana-streamer",
- "thiserror",
+ "thiserror 1.0.63",
  "tokio",
 ]
 
@@ -3906,7 +3906,7 @@ dependencies = [
  "solana-program",
  "solana-program-runtime",
  "solana-sdk",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -3934,7 +3934,7 @@ dependencies = [
  "solana-program",
  "solana-sdk",
  "subtle",
- "thiserror",
+ "thiserror 1.0.63",
  "zeroize",
 ]
 
@@ -3953,7 +3953,7 @@ dependencies = [
  "rand 0.8.5",
  "rustc-demangle",
  "scroll",
- "thiserror",
+ "thiserror 1.0.63",
  "winapi",
 ]
 
@@ -4009,7 +4009,7 @@ dependencies = [
  "solana-program",
  "spl-token",
  "spl-token-2022",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -4044,7 +4044,7 @@ dependencies = [
  "quote",
  "sha2 0.10.8",
  "syn 2.0.90",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -4079,7 +4079,7 @@ dependencies = [
  "num-traits",
  "solana-program",
  "spl-program-error-derive",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -4120,7 +4120,7 @@ dependencies = [
  "num-traits",
  "num_enum 0.6.1",
  "solana-program",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -4144,7 +4144,7 @@ dependencies = [
  "spl-token-metadata-interface",
  "spl-transfer-hook-interface",
  "spl-type-length-value",
- "thiserror",
+ "thiserror 1.0.63",
 ]
 
 [[package]]
@@ -4351,7 +4351,16 @@ version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
 dependencies = [
- "thiserror-impl",
+ "thiserror-impl 1.0.63",
+]
+
+[[package]]
+name = "thiserror"
+version = "2.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fec2a1820ebd077e2b90c4df007bebf344cd394098a13c563957d0afc83ea47"
+dependencies = [
+ "thiserror-impl 2.0.6",
 ]
 
 [[package]]
@@ -4359,6 +4368,17 @@ name = "thiserror-impl"
 version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d65750cab40f4ff1929fb1ba509e9914eb756131cef4210da8d5d700d26f6312"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4421,7 +4441,7 @@ dependencies = [
  "rand 0.7.3",
  "rustc-hash",
  "sha2 0.9.9",
- "thiserror",
+ "thiserror 1.0.63",
  "unicode-normalization",
  "wasm-bindgen",
  "zeroize",
@@ -4660,7 +4680,7 @@ dependencies = [
  "rand 0.8.5",
  "rustls",
  "sha1",
- "thiserror",
+ "thiserror 1.0.63",
  "url",
  "utf-8",
  "webpki-roots 0.24.0",
@@ -4769,8 +4789,11 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "dotenv",
+ "mpl-token-metadata",
+ "serde_json",
  "solana-client",
  "solana-sdk",
+ "spl-token",
  "time",
  "tracing",
  "tracing-subscriber",
@@ -5124,7 +5147,7 @@ dependencies = [
  "nom",
  "oid-registry",
  "rusticata-macros",
- "thiserror",
+ "thiserror 1.0.63",
  "time",
 ]
 

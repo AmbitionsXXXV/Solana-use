@@ -4,15 +4,17 @@ use raydium_monitor::{
     decoder::decode_ix_data,
     model::{InstructionDataValue, RaydiumInstruction},
     services::process_transaction,
-    token_info::fetch_token_info,
     utils::init_tracing,
 };
 use serde_json::json;
+use solana_sdk::commitment_config::CommitmentConfig;
 use tracing::info;
+use utils::{fetch_token_info, init_rpc_client};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     init_tracing();
+    let connection = init_rpc_client(CommitmentConfig::confirmed())?;
 
     let signature =
         "5bZxPrnrFWj9ebAfVsGbAf35k8s7pKNVdXx2ETzqrJMmWjFnwYk4duFyJvSLC3Hcu39UzV8PNpXwiMoKe8Jbdm6K";
@@ -37,9 +39,9 @@ async fn main() -> Result<()> {
 
             // 获取代币 A 和代币 B 的信息
             info!("正在获取代币 A 的信息: {}", token_a_account);
-            let token_a = fetch_token_info(token_a_account)?;
+            let token_a = fetch_token_info(&connection, token_a_account)?;
             info!("正在获取代币 B 的信息: {}", token_b_account);
-            let token_b = fetch_token_info(token_b_account)?;
+            let token_b = fetch_token_info(&connection, token_b_account)?;
 
             let decoded_ix_data = decode_ix_data::<RaydiumInstruction>(&data.unwrap())?;
 
@@ -52,14 +54,14 @@ async fn main() -> Result<()> {
                 json!({
                     "代币": token_a.0.name.trim_matches(char::from(0)),
                     "账户公钥": token_a_account,
-                    "数量": decoded_ix_data.init_coin_amount as f64 / 10f64.powi(token_a.1 as i32),
-                    "代币精度": token_a.1,
+                    "数量": decoded_ix_data.init_coin_amount as f64 / 10f64.powi(token_a.1.decimals as i32),
+                    "代币精度": token_a.1.decimals,
                 }),
                 json!({
                     "代币": token_b.0.name.trim_matches(char::from(0)),
                     "账户公钥": token_b_account,
-                    "数量": decoded_ix_data.init_pc_amount as f64 / 10f64.powi(token_b.1 as i32),
-                    "代币精度": token_b.1,
+                    "数量": decoded_ix_data.init_pc_amount as f64 / 10f64.powi(token_b.1.decimals as i32),
+                    "代币精度": token_b.1.decimals,
                 }),
             ];
 

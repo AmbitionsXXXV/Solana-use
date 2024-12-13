@@ -7,7 +7,7 @@ use solana_sdk::{
 use spl_token::{instruction::close_account, state::Account};
 use std::{error::Error, fs::read_to_string, str::FromStr, thread, time::Duration};
 use tracing::{error, info, warn};
-use utils::init_rpc_client;
+use utils::{fetch_token_info, format_metadata, init_rpc_client};
 
 // TokenAccountManager struct
 pub struct TokenAccountManager {
@@ -337,6 +337,23 @@ impl TokenAccountManager {
             if let solana_account_decoder::UiAccountData::Json(parsed_data) = &account.account.data
             {
                 if let Some(info) = parsed_data.parsed.get("info") {
+                    // -- 修改这部分代码，添加错误处理
+                    if let Some(mint) = info.get("mint") {
+                        let mint_str = mint.to_string();
+                        // -- 移除引号
+                        let clean_mint = mint_str.trim_matches('"');
+                        // -- 使用 match 处理可能的错误
+                        match fetch_token_info(&self.connection, clean_mint) {
+                            Ok(token_info) => {
+                                info!("代币元数据: {}", format_metadata(&token_info.0));
+                            }
+                            Err(e) => {
+                                warn!("获取代币信息失败: {}, 继续处理下一个账户", e);
+                                // -- 继续处理，不中断循环
+                                continue;
+                            }
+                        }
+                    }
                     if let Some(token_amount) = info.get("tokenAmount") {
                         // -- 获取代币数量
                         let amount = token_amount

@@ -42,6 +42,7 @@ pub async fn analyze_swap_info(signature: String) -> Result<()> {
 
             // 步骤 6：根据代币地址判断操作类型并记录日志
             log_swap_operation(
+                &rpc_client,
                 accounts,
                 source_address,
                 dest_address,

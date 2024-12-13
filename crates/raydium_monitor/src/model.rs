@@ -1,8 +1,4 @@
-use std::str::FromStr;
-
-use anyhow::Result;
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_sdk::pubkey::Pubkey;
 use thiserror::Error;
 
 /// 定义监控错误枚举，用于处理各种可能出现的错误情况
@@ -49,37 +45,4 @@ pub enum InstructionDataValue {
 #[derive(Debug, Clone)]
 pub struct InstructionData {
     pub value: InstructionDataValue,
-}
-
-/// 定义 ToPubkey trait，用于将不同类型转换为 Solana 的公钥（Pubkey）
-pub trait ToPubkey {
-    fn to_pubkey(&self) -> Result<Pubkey>;
-}
-
-/// 为 str 类型实现 ToPubkey trait
-impl ToPubkey for str {
-    fn to_pubkey(&self) -> Result<Pubkey> {
-        Pubkey::from_str(self).map_err(|e| e.into())
-    }
-}
-
-/// 为 String 类型实现 ToPubkey trait
-impl ToPubkey for String {
-    fn to_pubkey(&self) -> Result<Pubkey> {
-        self.as_str().to_pubkey()
-    }
-}
-
-/// 为 Pubkey 类型实现 ToPubkey trait（直接返回自身）
-impl ToPubkey for Pubkey {
-    fn to_pubkey(&self) -> Result<Pubkey> {
-        Ok(*self)
-    }
-}
-
-/// 为实现了 ToPubkey trait 的类型的引用实现 ToPubkey trait
-impl<T: ToPubkey + ?Sized> ToPubkey for &T {
-    fn to_pubkey(&self) -> Result<Pubkey> {
-        (*self).to_pubkey()
-    }
 }

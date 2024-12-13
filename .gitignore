@@ -5,3 +5,4 @@ target
 .turbo
 dist/
 wallet.json
+.idea

@@ -7,8 +7,11 @@ edition = "2021"
 anyhow.workspace = true
 dotenv.workspace = true
 tracing.workspace = true
+spl-token.workspace = true
 solana-sdk.workspace = true
 solana-client.workspace = true
+serde_json.workspace = true
+mpl-token-metadata.workspace = true
 tracing-subscriber = { workspace = true, features = [
   "json",
   "env-filter",

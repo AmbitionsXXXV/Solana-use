@@ -9,11 +9,11 @@ use solana_transaction_status::{
     UiInstruction, UiMessage, UiParsedInstruction,
 };
 use tracing::{debug, error, info, instrument, warn};
+use utils::{fetch_token_info, init_rpc_client};
 
 use crate::client::get_transaction_details;
 use crate::decoder::decode_ix_data;
 use crate::model::{InstructionData, InstructionDataValue, MonitorError, RaydiumInstruction};
-use crate::token_info::fetch_token_info;
 
 /// 订阅并处理 Solana 日志
 ///
@@ -29,6 +29,8 @@ use crate::token_info::fetch_token_info;
 /// 返回 `Result<()>`，表示操作成功或失败
 #[instrument]
 pub async fn subscribe_to_logs(ws_url: &str) -> Result<()> {
+    let connection = init_rpc_client(CommitmentConfig::confirmed())?;
+
     info!("正在订阅日志");
     // 步骤 1：连接 WebSocket 并订阅特定程序 ID 的日志
     let (_, logs_receiver) = PubsubClient::logs_subscribe(
@@ -77,9 +79,9 @@ pub async fn subscribe_to_logs(ws_url: &str) -> Result<()> {
 
                             // 步骤 7：获取代币信息
                             info!("正在获取代币 A 的信息: {}", token_a_account);
-                            let token_a = fetch_token_info(token_a_account)?;
+                            let token_a = fetch_token_info(&connection, token_a_account)?;
                             info!("正在获取代币 B 的信息: {}", token_b_account);
-                            let token_b = fetch_token_info(token_b_account)?;
+                            let token_b = fetch_token_info(&connection, token_b_account)?;
 
                             // 步骤 8：解码指令数据
                             let decoded_ix_data =
@@ -95,14 +97,14 @@ pub async fn subscribe_to_logs(ws_url: &str) -> Result<()> {
                                 json!({
                                     "代币": token_a.0.name.trim_matches(char::from(0)),
                                     "账户公钥": token_a_account,
-                                    "数量": decoded_ix_data.init_coin_amount as f64 / 10f64.powi(token_a.1 as i32),
-                                    "代币精度": token_a.1,
+                                    "数量": decoded_ix_data.init_coin_amount as f64 / 10f64.powi(token_a.1.decimals as i32),
+                                    "代币精度": token_a.1.decimals,
                                 }),
                                 json!({
                                     "代币": token_b.0.name.trim_matches(char::from(0)),
                                     "账户公钥": token_b_account,
-                                    "数量": decoded_ix_data.init_pc_amount as f64 / 10f64.powi(token_b.1 as i32),
-                                    "代币精度": token_b.1,
+                                    "数量": decoded_ix_data.init_pc_amount as f64 / 10f64.powi(token_b.1.decimals as i32),
+                                    "代币精度": token_b.1.decimals,
                                 }),
                             ];
 
