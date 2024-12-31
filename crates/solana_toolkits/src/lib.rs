@@ -415,7 +415,7 @@ impl TokenAccountManager {
                 info!("[账户 {}]", index + 1);
                 info!("地址: {}", account.address);
                 info!("Mint: {}", account.mint);
-                info!("���金: {} SOL", account.rent_sol);
+                info!("租金: {} SOL", account.rent_sol);
             }
         }
 

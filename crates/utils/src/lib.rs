@@ -76,7 +76,7 @@ pub fn init_rpc_client(commitment_config: CommitmentConfig) -> Result<RpcClient>
 ///
 /// 该函数设置和初始化 tracing 日志系统，使用环境变量配置的过滤器。
 pub fn init_tracing() {
-    // 从环境变量获取时区配置，���认东八区 (+8)
+    // 从环境变量获取时区配置，默认东八区 (+8)
     let offset = env::var("TZ_OFFSET")
         .ok()
         .and_then(|x| x.parse::<i8>().ok())
