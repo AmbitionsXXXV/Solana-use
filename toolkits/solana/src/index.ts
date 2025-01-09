@@ -43,7 +43,8 @@ interface ClosureResult {
 }
 
 // -- 网络连接配置
-const SOLANA_RPC_URL = "https://api.mainnet-beta.solana.com"
+const SOLANA_RPC_URL =
+	process.env.HELIUS_RPC_URL ?? "https://api.mainnet-beta.solana.com"
 const COMMITMENT = "confirmed"
 
 class TokenAccountManager {
