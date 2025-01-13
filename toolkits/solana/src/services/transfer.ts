@@ -42,7 +42,7 @@ export class TransferManager {
 	public wallet: Keypair
 
 	constructor(walletKeyPath: string, endpoint: string) {
-		// -- 创建RPC连接
+		// -- 创建 RPC 连接
 		this.connection = new Connection(endpoint, COMMITMENT)
 
 		// -- 从文件加载钱包
@@ -51,7 +51,7 @@ export class TransferManager {
 		this.wallet = Keypair.fromSecretKey(fromSecretKey)
 	}
 
-	// -- 执行SOL转账
+	// -- 执行 SOL 转账
 	async transfer(
 		toAddress: string,
 		lamports: number,
@@ -70,7 +70,7 @@ export class TransferManager {
 				)
 			}
 
-			// -- 设置CU限制（如果提供）
+			// -- 设置 CU 限制（如果提供）
 			if (config?.computeUnitLimit) {
 				instructions.push(
 					ComputeBudgetProgram.setComputeUnitLimit({
