@@ -29,11 +29,12 @@ pnpm add @xxhh/toolkits-solana
 
 ```typescript
 import { TokenAccountManager, getClosableTokenAccounts } from '@xxhh/toolkits-solana'
+import { logger } from '@xxhh/toolkits-logger'
 
 // 查询可关闭的代币账户
 const result = await getClosableTokenAccounts(walletAddress)
-console.log(`找到 ${result.closableAccounts} 个可关闭账户`)
-console.log(`总计可返还租金: ${result.totalRentSol} SOL`)
+logger.info(`找到 ${result.closableAccounts} 个可关闭账户`)
+logger.info(`总计可返还租金: ${result.totalRentSol} SOL`)
 
 // 批量关闭账户
 const manager = new TokenAccountManager(walletKeyPath)
