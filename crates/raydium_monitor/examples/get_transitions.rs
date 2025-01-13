@@ -9,11 +9,12 @@ use raydium_monitor::{
 use serde_json::json;
 use solana_sdk::commitment_config::CommitmentConfig;
 use tracing::info;
-use utils::{fetch_token_info, init_rpc_client};
+use utils::{fetch_token_info, init_rpc_client, load_env};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     init_tracing();
+    load_env()?;
     let connection = init_rpc_client(CommitmentConfig::confirmed())?;
 
     let signature =
