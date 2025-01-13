@@ -1,30 +1,30 @@
 {
-  "name": "solana-learn",
-  "author": "etcetera",
-  "scripts": {
-    "start": "ts-node solana-program/index.ts",
-    "load_keypair": "esrun ./client/load_keypair/index.ts",
-    "batch_create_solana_accounts": "esrun ./client/batch_create_solana_accounts/index.ts",
-    "transfer_usdc": "esrun ./client/transfer_usdc/index.ts",
-    "generate_keypair": "esrun ./client/generate_keypair/index.ts",
-    "solana:dev": "pnpm --filter @xxhh/toolkits-solana dev",
-    "build": "turbo run build"
-  },
-  "packageManager": "pnpm@9.15.0",
-  "dependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@coral-xyz/borsh": "^0.30.1",
-    "@solana-developers/helpers": "^2.5.6",
-    "@solana/spl-token": "^0.4.9",
-    "@solana/spl-token-swap": "^0.4.4",
-    "@solana/web3.js": "^1.95.8",
-    "bs58": "^6.0.0",
-    "dotenv": "^16.4.7",
-    "esrun": "^3.2.26",
-    "typescript": "^5.7.2"
-  },
-  "devDependencies": {
-    "tsx": "^4.19.2",
-    "turbo": "^2.3.3"
-  }
+	"name": "solana-learn",
+	"author": "etcetera",
+	"scripts": {
+		"start": "ts-node solana-program/index.ts",
+		"load_keypair": "esrun ./client/load_keypair/index.ts",
+		"batch_create_solana_accounts": "esrun ./client/batch_create_solana_accounts/index.ts",
+		"transfer_usdc": "esrun ./client/transfer_usdc/index.ts",
+		"generate_keypair": "esrun ./client/generate_keypair/index.ts",
+		"solana:dev": "pnpm --filter @xxhh/toolkits-solana dev",
+		"build": "turbo run build"
+	},
+	"packageManager": "pnpm@9.15.0",
+	"dependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@coral-xyz/borsh": "^0.30.1",
+		"@solana-developers/helpers": "^2.5.6",
+		"@solana/spl-token": "^0.4.9",
+		"@solana/spl-token-swap": "^0.4.4",
+		"@solana/web3.js": "1.98.0",
+		"bs58": "^6.0.0",
+		"dotenv": "^16.4.7",
+		"esrun": "^3.2.26",
+		"typescript": "^5.7.2"
+	},
+	"devDependencies": {
+		"tsx": "^4.19.2",
+		"turbo": "^2.3.3"
+	}
 }

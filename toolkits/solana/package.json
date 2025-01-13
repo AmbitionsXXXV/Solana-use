@@ -12,8 +12,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@solana/web3.js": "^1.95.8",
-		"@types/node": "^20.11.24",
+		"@solana/web3.js": "1.95.8",
+		"@types/node": "22.10.5",
 		"@xxhh/toolkits-logger": "workspace:*",
 		"bs58": "^6.0.0",
 		"tsup": "^8.0.2",
