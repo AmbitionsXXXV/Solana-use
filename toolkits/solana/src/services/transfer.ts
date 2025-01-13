@@ -52,6 +52,9 @@ export class TransferManager {
 	}
 
 	// -- 执行 SOL 转账
+	// 这里使用 v0 交易
+	// 版本化交易（Versioned Transactions）或称 v0 交易是 Solana 更新过程中引入的一种新的交易类型。
+	// 因传统（legacy）交易账户数量的限制，v0 交易中引入了地址查找表（Address Lookup Tables）功能，用于压缩账户数量，将账户数量限制由 35 个提升到了 64 个。
 	async transfer(
 		toAddress: string,
 		lamports: number,
@@ -93,11 +96,11 @@ export class TransferManager {
 				await this.connection.getLatestBlockhash(COMMITMENT)
 			logger.debug(`获取最新区块哈希: ${latestBlockhash.blockhash}`)
 
-			// -- 创建交易消息
+			// -- 创建 v0 交易消息
 			const messageV0 = new TransactionMessage({
-				payerKey: this.wallet.publicKey,
-				recentBlockhash: latestBlockhash.blockhash,
-				instructions,
+				payerKey: this.wallet.publicKey, // 支付账户
+				recentBlockhash: latestBlockhash.blockhash, // 最近的区块hash
+				instructions, // 指令
 			}).compileToV0Message()
 
 			// -- 创建版本化交易
@@ -118,10 +121,10 @@ export class TransferManager {
 				)
 			}
 
-			// -- 签名交易
+			// -- 签名 v0 交易
 			transaction.sign([this.wallet])
 
-			// -- 发送交易
+			// -- 发送 v0 交易
 			const signature = await this.connection.sendTransaction(transaction, {
 				maxRetries: 3,
 			})
@@ -130,8 +133,8 @@ export class TransferManager {
 			// -- 确认交易
 			const confirmation = await this.connection.confirmTransaction({
 				signature,
-				blockhash: latestBlockhash.blockhash,
-				lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+				blockhash: latestBlockhash.blockhash, // 最近的区块hash
+				lastValidBlockHeight: latestBlockhash.lastValidBlockHeight, // 最近的区块高度
 			})
 			logger.debug(`交易确认: ${JSON.stringify(confirmation)}`)
 
