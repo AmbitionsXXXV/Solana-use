@@ -1,4 +1,4 @@
-import { logger } from "@xxhh/toolkits-logger"
+import { logger } from "@etc/toolkits-logger"
 import { RAYDIUM_V4 } from "./constant"
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js"
 

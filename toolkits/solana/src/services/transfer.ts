@@ -8,7 +8,7 @@ import {
 	TransactionMessage,
 	VersionedTransaction,
 } from "@solana/web3.js"
-import { type LogMessage, logger } from "@xxhh/toolkits-logger"
+import { type LogMessage, logger } from "@etc/toolkits-logger"
 import fs from "node:fs"
 import { COMMITMENT } from "../constant"
 import type { TransferConfig, TransferResult } from "../types/transfer"

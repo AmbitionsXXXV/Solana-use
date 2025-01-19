@@ -20,7 +20,7 @@
 ## 安装
 
 ```bash
-pnpm add @xxhh/toolkits-solana
+pnpm add @etc/toolkits-solana
 ```
 
 ## 使用示例
@@ -28,8 +28,8 @@ pnpm add @xxhh/toolkits-solana
 ### 代币账户管理
 
 ```typescript
-import { TokenAccountManager, getClosableTokenAccounts } from '@xxhh/toolkits-solana'
-import { logger } from '@xxhh/toolkits-logger'
+import { TokenAccountManager, getClosableTokenAccounts } from '@etc/toolkits-solana'
+import { logger } from '@etc/toolkits-logger'
 
 // 查询可关闭的代币账户
 const result = await getClosableTokenAccounts(walletAddress)
@@ -48,7 +48,7 @@ import {
     TransferManager, 
     DEFAULT_COMPUTE_UNIT_PRICE,
     DEFAULT_COMPUTE_UNIT_LIMIT 
-} from '@xxhh/toolkits-solana'
+} from '@etc/toolkits-solana'
 
 // 创建转账管理器
 const manager = new TransferManager(walletKeyPath, SOLANA_RPC_URL)

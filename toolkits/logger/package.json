@@ -1,5 +1,5 @@
 {
-	"name": "@xxhh/toolkits-logger",
+	"name": "@etc/toolkits-logger",
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",

@@ -7,7 +7,7 @@
 		"batch_create_solana_accounts": "esrun ./client/batch_create_solana_accounts/index.ts",
 		"transfer_usdc": "esrun ./client/transfer_usdc/index.ts",
 		"generate_keypair": "esrun ./client/generate_keypair/index.ts",
-		"solana:dev": "pnpm --filter @xxhh/toolkits-solana dev",
+		"solana:dev": "pnpm --filter @etc/toolkits-solana dev",
 		"build": "turbo run build"
 	},
 	"packageManager": "pnpm@9.15.0",

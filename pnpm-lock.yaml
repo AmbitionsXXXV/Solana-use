@@ -81,7 +81,7 @@ importers:
       '@types/node':
         specifier: 22.10.5
         version: 22.10.5
-      '@xxhh/toolkits-logger':
+      '@etc/toolkits-logger':
         specifier: workspace:*
         version: link:../logger
       bs58:

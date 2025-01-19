@@ -1,6 +1,6 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
 import { TOKEN_PROGRAM_ID, getAccount } from "@solana/spl-token"
-import { type LogMessage, logger } from "@xxhh/toolkits-logger"
+import { type LogMessage, logger } from "@etc/toolkits-logger"
 import { COMMITMENT, SOLANA_RPC_URL } from "../constant"
 import type { TokenAccount, TokenAccountsResult } from "../types/token"
 

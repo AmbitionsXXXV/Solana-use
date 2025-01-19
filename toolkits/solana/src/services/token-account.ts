@@ -10,7 +10,7 @@ import {
 	createCloseAccountInstruction,
 	getAccount,
 } from "@solana/spl-token"
-import { logger } from "@xxhh/toolkits-logger"
+import { logger } from "@etc/toolkits-logger"
 import bs58 from "bs58"
 import * as fs from "node:fs"
 import { COMMITMENT, SOLANA_RPC_URL } from "../constant"

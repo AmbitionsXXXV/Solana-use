@@ -1,5 +1,5 @@
 {
-	"name": "@xxhh/toolkits-solana",
+	"name": "@etc/toolkits-solana",
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",
@@ -14,7 +14,7 @@
 		"@biomejs/biome": "^1.9.4",
 		"@solana/web3.js": "1.95.8",
 		"@types/node": "22.10.5",
-		"@xxhh/toolkits-logger": "workspace:*",
+		"@etc/toolkits-logger": "workspace:*",
 		"bs58": "^6.0.0",
 		"tsup": "^8.0.2",
 		"tsx": "^4.7.1",
