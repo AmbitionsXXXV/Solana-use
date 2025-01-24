@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // -- 批量关闭账户，每批处理 5 个
     manager
-        .batch_close_accounts(&accounts.accounts, 5, true)
+        .batch_close_accounts(&accounts.accounts, 1, false)
         .await?;
 
     Ok(())

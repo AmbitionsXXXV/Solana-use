@@ -15,6 +15,7 @@ import {
 	DEFAULT_COMPUTE_UNIT_LIMIT,
 	DEFAULT_COMPUTE_UNIT_PRICE,
 } from "./constant"
+import { PublicKey } from "@solana/web3.js"
 
 config({ path: ".env" })
 
@@ -36,17 +37,17 @@ export {
 async function main() {
 	try {
 		// -- 示例：Raydium V4 合约日志监控
-		subRay()
+		// subRay()
 
 		// -- 示例：SOL转账
-		// const walletPath = process.env.WALLET_PATH
-		// if (!walletPath) {
-		//     logger.warn("未提供钱包私钥文件路径（WALLET_PATH），无法执行操作")
-		//     return
-		// }
+		const walletPath = process.env.WALLET_PATH
+		if (!walletPath) {
+			logger.warn("未提供钱包私钥文件路径（WALLET_PATH），无法执行操作")
+			return
+		}
 
 		// const transferManager = new TransferManager(walletPath, SOLANA_RPC_URL)
-		// const result = await transferManager.transfer(
+		// const result = await transferManager.closeAccount(
 		//     "buffaAJKmNLao65TDTUGq8oB9HgxkfPLGqPMFQapotJ",
 		//     1000,
 		//     {
@@ -61,6 +62,15 @@ async function main() {
 		// } else {
 		//     logger.error(`转账失败: ${result.error}`)
 		// }
+
+		const tokenAccountManager = new TokenAccountManager(
+			walletPath,
+			SOLANA_RPC_URL,
+		)
+
+		await tokenAccountManager.closeAccount(
+			new PublicKey("9DHe3pycTuymFk4H4bbPoAJ4hQrr2kaLDF6J6aAKpump"),
+		)
 	} catch (error) {
 		logger.error("执行失败:")
 		logger.error(error as LogMessage)
