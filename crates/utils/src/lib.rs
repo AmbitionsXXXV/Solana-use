@@ -11,6 +11,10 @@ use tracing_subscriber::{
     EnvFilter,
 };
 
+mod error;
+
+pub use error::*;
+
 /// 定义 ToPubkey trait，用于将不同类型转换为 Solana 的公钥（Pubkey）
 pub trait ToPubkey {
     fn to_pubkey(&self) -> Result<Pubkey>;
@@ -54,12 +58,14 @@ impl<T: ToPubkey + ?Sized> ToPubkey for &T {
 ///
 /// # 返回值
 ///
-/// 返回 `Result<RpcClient>`，其中包含初始化的 RPC 客户端，或在出错时返回错误。
+/// 返回 `Result<RpcClient, ClientError>`，其中包含初始化的 RPC 客户端，或在出错时返回错误。
 ///
 /// # 错误
 ///
 /// 如果无法从环境变量获取 RPC URL 或创建客户端失败，将返回错误。
-pub fn init_rpc_client(commitment_config: CommitmentConfig) -> Result<RpcClient> {
+pub fn init_rpc_client(
+    commitment_config: CommitmentConfig,
+) -> Result<RpcClient, solana_client::client_error::ClientError> {
     // 尝试从环境变量获取 RPC URL，如果未设置则使用默认 mainnet URL
     let rpc_url = env::var("RPC_URL").unwrap_or_else(|_| {
         warn!("未设置 RPC_URL，使用默认的 mainnet URL");
