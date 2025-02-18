@@ -93,6 +93,7 @@ pnpm run transfer_usdc
 
 ### 3. 注意事项
 
+- 确保已有 Rust 环境
 - 确保已安装 Solana CLI 工具
 - 使用前请仔细阅读配置说明
 - 测试网操作请使用测试账户
