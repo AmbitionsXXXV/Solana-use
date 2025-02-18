@@ -162,6 +162,18 @@ where
     let data = rpc_client.get_account_data(&token_pubkey)?;
     let mint = Mint::unpack(&data)?;
 
-    info!("成功获取代币信息");
     Ok((metadata, mint))
+}
+
+pub fn extract_token_info(info: &serde_json::Value) -> Option<(String, u64, String)> {
+    let mint = info.get("mint")?.as_str()?.to_string();
+    let amount = info
+        .get("tokenAmount")?
+        .get("amount")?
+        .as_str()?
+        .parse::<u64>()
+        .ok()?;
+    let symbol = info.get("symbol")?.as_str()?.to_string();
+
+    Some((mint, amount, symbol))
 }

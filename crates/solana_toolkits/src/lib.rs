@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_request::TokenAccountsFilter;
 use solana_sdk::{
@@ -5,14 +6,50 @@ use solana_sdk::{
     pubkey::Pubkey, signature::Keypair, signer::Signer, transaction::Transaction,
 };
 use spl_token::{instruction::close_account, state::Account};
-use std::{error::Error, fs::read_to_string, str::FromStr, thread, time::Duration};
+use std::{
+    collections::HashSet, error::Error, fs::read_to_string, str::FromStr, thread, time::Duration,
+};
 use tracing::{error, info, warn};
 use utils::{fetch_token_info, format_metadata, init_rpc_client};
+
+/// -- 代币白名单管理器
+/// 用于管理不应该被关闭的代币账户的白名单
+#[derive(Debug, Default)]
+pub struct TokenWhitelist {
+    symbols: HashSet<String>, // -- 代币符号白名单
+    mints: HashSet<String>,   // -- 代币 Mint 地址白名单
+}
+
+impl TokenWhitelist {
+    /// -- 创建新的白名单管理器
+    pub fn new() -> Self {
+        Self {
+            symbols: HashSet::new(),
+            mints: HashSet::new(),
+        }
+    }
+
+    /// -- 添加代币符号到白名单
+    pub fn add_symbol(&mut self, symbol: &str) {
+        self.symbols.insert(symbol.to_uppercase());
+    }
+
+    /// -- 添加 Mint 地址到白名单
+    pub fn add_mint(&mut self, mint: &str) {
+        self.mints.insert(mint.to_string());
+    }
+
+    /// -- 检查代币是否在白名单中
+    pub fn is_whitelisted(&self, symbol: &str, mint: &str) -> bool {
+        self.symbols.contains(&symbol.to_uppercase()) || self.mints.contains(mint)
+    }
+}
 
 // TokenAccountManager struct
 pub struct TokenAccountManager {
     pub connection: RpcClient,
     pub wallet: Keypair,
+    whitelist: TokenWhitelist, // -- 添加白名单字段
 }
 
 /// -- 代币账户信息结构体
@@ -23,17 +60,31 @@ pub struct TokenAccountInfo {
     pub mint: String,       // -- 代币的 Mint 地址
     pub rent_lamports: u64, // -- 租金（以 lamports 为单位）
     pub rent_sol: f64,      // -- 租金（以 SOL 为单位）
+    pub symbol: String,     // -- 代币符号
+}
+
+/// -- 零值代币账户信息结构体
+#[derive(Debug)]
+pub struct ZeroValueTokenInfo {
+    pub address: String,    // -- 账户地址
+    pub mint: String,       // -- 代币的 Mint 地址
+    pub balance: u64,       // -- 代币余额
+    pub rent_lamports: u64, // -- 租金（以 lamports 为单位）
+    pub rent_sol: f64,      // -- 租金（以 SOL 为单位）
+    pub symbol: String,     // -- 代币符号
 }
 
 /// -- 代币账户查询结果结构体
 /// 包含查询到的所有代币账户统计信息
 #[derive(Debug)]
 pub struct TokenAccountsResult {
-    pub total_accounts: usize,           // -- 总账户数量
-    pub closable_accounts: usize,        // -- 可关闭的账户数量
-    pub accounts: Vec<TokenAccountInfo>, // -- 可关闭账户列表
-    pub total_rent_lamports: u64,        // -- 总租金（以 lamports 为单位）
-    pub total_rent_sol: f64,             // -- 总租金（以 SOL 为单位）
+    pub total_accounts: usize,                             // -- 总账户数量
+    pub closable_accounts: usize,                          // -- 可关闭的账户数量（余额为 0）
+    pub zero_value_accounts: usize,                        // -- 零值代币账户数量
+    pub accounts: Vec<TokenAccountInfo>,                   // -- 可关闭账户列表（余额为 0）
+    pub zero_value_accounts_list: Vec<ZeroValueTokenInfo>, // -- 零值代币账户列表
+    pub total_rent_lamports: u64,                          // -- 总租金（以 lamports 为单位）
+    pub total_rent_sol: f64,                               // -- 总租金（以 SOL 为单位）
 }
 
 /// -- 账户关闭结果结构体
@@ -78,18 +129,36 @@ impl TokenAccountManager {
     /// * `wallet_key_path` - 钱包密钥文件路径
     ///
     /// # 返回
-    /// * `Result<Self, Box<dyn Error>>` - 成功返回管理器实例，失败返回错误
-    pub fn new(wallet_key_path: &str) -> Result<Self, Box<dyn Error>> {
-        let connection = init_rpc_client(CommitmentConfig::confirmed())?;
+    /// * `Result<Self>` - 成功返回管理器实例，失败返回错误
+    pub fn new(wallet_key_path: &str) -> Result<Self> {
+        let connection =
+            init_rpc_client(CommitmentConfig::confirmed()).context("初始化 RPC 客户端失败")?;
 
-        // -- 读取 JSON 并提取私钥字符串
-        let key_str = read_to_string(wallet_key_path)?;
-        let key_value: serde_json::Value = serde_json::from_str(&key_str)?;
-        let private_key = key_value.as_str().ok_or("Invalid key format")?;
+        let key_str = read_to_string(wallet_key_path).context("读取钱包密钥文件失败")?;
+        let key_value: serde_json::Value =
+            serde_json::from_str(&key_str).context("解析钱包密钥 JSON 失败")?;
+        let private_key = key_value
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("无效的密钥格式"))?;
 
         let wallet = Keypair::from_base58_string(private_key);
+        let whitelist = TokenWhitelist::new();
 
-        Ok(Self { connection, wallet })
+        Ok(Self {
+            connection,
+            wallet,
+            whitelist,
+        })
+    }
+
+    /// -- 添加代币符号到白名单
+    pub fn add_symbol_to_whitelist(&mut self, symbol: &str) {
+        self.whitelist.add_symbol(symbol);
+    }
+
+    /// -- 添加 Mint 地址到白名单
+    pub fn add_mint_to_whitelist(&mut self, mint: &str) {
+        self.whitelist.add_mint(mint);
     }
 
     /// -- 获取指定账户的详细信息
@@ -272,6 +341,16 @@ impl TokenAccountManager {
                         success_count += chunk.len();
                         info!("批量关闭成功，交易签名: {}", signature);
                         for account in chunk {
+                            // -- 获取并打印 symbol
+                            if let Ok((metadata, _mint)) =
+                                fetch_token_info(&self.connection, &account.mint)
+                            {
+                                let symbol =
+                                    metadata.symbol.trim_matches(char::from(0)).to_string();
+                                info!("代币地址: {}, Symbol: {}", account.mint, symbol);
+                            } else {
+                                info!("代币地址: {}, 无法获取 Symbol", account.mint);
+                            }
                             info!("成功关闭账户: {}", account.address);
                         }
                     }
@@ -292,6 +371,17 @@ impl TokenAccountManager {
                     if result.success {
                         success_count += 1;
                         total_rent_recovered += result.rent_recovered;
+
+                        // -- 获取并打印 symbol
+                        if let Ok((metadata, _mint)) =
+                            fetch_token_info(&self.connection, &account.mint)
+                        {
+                            let symbol = metadata.symbol.trim_matches(char::from(0)).to_string();
+                            info!("代币地址: {}, Symbol: {}", account.mint, symbol);
+                        } else {
+                            info!("代币地址: {}, 无法获取 Symbol", account.mint);
+                        }
+
                         info!("成功关闭账户: {}", result.account_address);
                         info!("交易签名: {}", result.signature.unwrap());
                         info!("回收租金: {} SOL", result.rent_recovered);
@@ -330,7 +420,7 @@ impl TokenAccountManager {
         Ok(())
     }
 
-    /// -- 获取所有可关闭的代币账户列表
+    /// -- 获取所有可关闭的代币账户列表（包括零值代币账户）
     ///
     /// # 返回
     /// * `Result<TokenAccountsResult, Box<dyn Error>>` - 成功返回可关闭账户列表及统计信息，失败返回错误
@@ -341,60 +431,81 @@ impl TokenAccountManager {
         )?;
 
         let mut closeable_accounts = Vec::new();
+        let mut zero_value_accounts = Vec::new();
         let mut total_rent_lamports = 0;
         let mut total_rent_sol = 0.0;
 
         for account in &accounts {
-            // -- 解析 JSON 数据
             if let solana_account_decoder::UiAccountData::Json(parsed_data) = &account.account.data
             {
                 if let Some(info) = parsed_data.parsed.get("info") {
-                    // -- 修改这部分代码，添加错误处理
                     if let Some(mint) = info.get("mint") {
                         let mint_str = mint.to_string();
-                        // -- 移除引号
                         let clean_mint = mint_str.trim_matches('"');
-                        // -- 使用 match 处理可能的错误
-                        match fetch_token_info(&self.connection, clean_mint) {
+
+                        // -- 获取代币信息
+                        let token_info = match fetch_token_info(&self.connection, clean_mint) {
                             Ok(token_info) => {
                                 info!("代币元数据: {}", format_metadata(&token_info.0));
+                                Some(token_info)
                             }
                             Err(e) => {
                                 warn!("获取代币信息失败: {}, 继续处理下一个账户", e);
-                                // -- 继续处理，不中断循环
-                                continue;
+                                None
                             }
-                        }
-                    }
-                    if let Some(token_amount) = info.get("tokenAmount") {
-                        // -- 获取代币数量
-                        let amount = token_amount
-                            .get("amount")
-                            .and_then(|v| v.as_str())
-                            .and_then(|s| s.parse::<u64>().ok())
-                            .unwrap_or(1); // 如果解析失败，默认设为非 0 值
+                        };
 
-                        // -- 只处理余额为 0 的账户
-                        if amount == 0 {
+                        if let Some(token_amount) = info.get("tokenAmount") {
+                            let amount = token_amount
+                                .get("amount")
+                                .and_then(|v| v.as_str())
+                                .and_then(|s| s.parse::<u64>().ok())
+                                .unwrap_or(0);
+
                             let rent_lamports = account.account.lamports;
                             let rent_sol = rent_lamports as f64 / LAMPORTS_PER_SOL as f64;
-
-                            // -- 获取 mint 地址
-                            let mint = info
-                                .get("mint")
-                                .and_then(|v| v.as_str())
-                                .unwrap_or("unknown")
-                                .to_string();
+                            let mint = clean_mint.to_string();
+                            let symbol = token_info
+                                .as_ref()
+                                .map(|(metadata, _)| {
+                                    metadata.symbol.trim_matches(char::from(0)).to_string()
+                                })
+                                .unwrap_or_else(|| "unknown".to_string());
 
                             total_rent_lamports += rent_lamports;
                             total_rent_sol += rent_sol;
 
-                            closeable_accounts.push(TokenAccountInfo {
-                                address: account.pubkey.to_string(),
-                                mint,
-                                rent_lamports,
-                                rent_sol,
-                            });
+                            if amount == 0 {
+                                // -- 余额为 0 的账户
+                                closeable_accounts.push(TokenAccountInfo {
+                                    address: account.pubkey.to_string(),
+                                    mint: mint.clone(),
+                                    rent_lamports,
+                                    rent_sol,
+                                    symbol: symbol.clone(),
+                                });
+                            } else {
+                                // -- 检查是否为零值代币，且不在白名单中
+                                if let Some((metadata, _)) = token_info {
+                                    let symbol =
+                                        metadata.symbol.trim_matches(char::from(0)).to_string();
+                                    if !self.whitelist.is_whitelisted(&symbol, &mint) {
+                                        zero_value_accounts.push(ZeroValueTokenInfo {
+                                            address: account.pubkey.to_string(),
+                                            mint,
+                                            balance: amount,
+                                            rent_lamports,
+                                            rent_sol,
+                                            symbol,
+                                        });
+                                    } else {
+                                        info!(
+                                            "跳过白名单代币 - Symbol: {}, Mint: {}",
+                                            symbol, mint
+                                        );
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -404,7 +515,9 @@ impl TokenAccountManager {
         let result = TokenAccountsResult {
             total_accounts: accounts.len(),
             closable_accounts: closeable_accounts.len(),
+            zero_value_accounts: zero_value_accounts.len(),
             accounts: closeable_accounts,
+            zero_value_accounts_list: zero_value_accounts,
             total_rent_lamports,
             total_rent_sol,
         };
@@ -414,13 +527,14 @@ impl TokenAccountManager {
         info!("账户统计");
         info!("{}", "=".repeat(50));
         info!("总账户数: {}", result.total_accounts);
-        info!("可关闭账户数: {}", result.closable_accounts);
+        info!("可关闭账户数（余额为 0）: {}", result.closable_accounts);
+        info!("零值代币账户数: {}", result.zero_value_accounts);
         info!("总可回收租金: {} SOL", result.total_rent_sol);
 
         // -- 打印详细信息
         if !result.accounts.is_empty() {
             info!("{}", "=".repeat(50));
-            info!("可关闭账户详情");
+            info!("可关闭账户详情（余额为 0）");
             info!("{}", "=".repeat(50));
 
             for (index, account) in result.accounts.iter().enumerate() {
@@ -428,6 +542,22 @@ impl TokenAccountManager {
                 info!("地址: {}", account.address);
                 info!("Mint: {}", account.mint);
                 info!("租金: {} SOL", account.rent_sol);
+                info!("Symbol: {}", account.symbol);
+            }
+        }
+
+        if !result.zero_value_accounts_list.is_empty() {
+            info!("{}", "=".repeat(50));
+            info!("零值代币账户详情（非白名单）");
+            info!("{}", "=".repeat(50));
+
+            for (index, account) in result.zero_value_accounts_list.iter().enumerate() {
+                info!("[账户 {}]", index + 1);
+                info!("地址: {}", account.address);
+                info!("Mint: {}", account.mint);
+                info!("余额: {}", account.balance);
+                info!("租金: {} SOL", account.rent_sol);
+                info!("Symbol: {}", account.symbol);
             }
         }
 
@@ -509,5 +639,79 @@ impl TokenAccountManager {
         }
 
         result
+    }
+
+    /// -- 批量销毁并关闭零值代币账户
+    ///
+    /// # 参数
+    /// * `accounts` - 要关闭的零值代币账户列表
+    /// * `batch_size` - 每批处理的账户数量
+    pub async fn batch_burn_and_close_zero_value_accounts(
+        &self,
+        accounts: &[ZeroValueTokenInfo],
+        batch_size: usize,
+    ) -> Result<(), Box<dyn Error>> {
+        if accounts.is_empty() {
+            warn!("没有找到可关闭的零值代币账户");
+            return Ok(());
+        }
+
+        let balance_before = self
+            .connection
+            .get_balance(&self.wallet.pubkey())
+            .unwrap_or(0);
+        let balance_before_sol = balance_before as f64 / LAMPORTS_PER_SOL as f64;
+
+        let mut success_count = 0;
+        let mut fail_count = 0;
+        let mut total_rent_recovered = 0.0;
+
+        for (i, chunk) in accounts.chunks(batch_size).enumerate() {
+            info!("\n处理第 {} 批, 共 {} 个账户", i + 1, chunk.len());
+
+            for account in chunk {
+                let pubkey = Pubkey::from_str(&account.address).unwrap();
+                let result = self.burn_and_close_account(&pubkey).await;
+
+                if result.success {
+                    success_count += 1;
+                    total_rent_recovered += result.rent_recovered;
+
+                    info!("成功处理账户: {}", result.account_address);
+                    info!("销毁数量: {}", result.burned_amount);
+                    info!("销毁交易: {}", result.burn_signature.unwrap());
+                    info!("关闭交易: {}", result.close_signature.unwrap());
+                    info!("回收租金: {} SOL", result.rent_recovered);
+                } else {
+                    fail_count += 1;
+                    error!("处理失败: {}", result.account_address);
+                    error!("错误信息: {}", result.error.unwrap());
+                }
+            }
+
+            // -- 批次间延时
+            if i * batch_size < accounts.len() {
+                thread::sleep(Duration::from_millis(2000));
+            }
+        }
+
+        let balance_after = self
+            .connection
+            .get_balance(&self.wallet.pubkey())
+            .unwrap_or(0);
+        let balance_after_sol = balance_after as f64 / LAMPORTS_PER_SOL as f64;
+        let actual_recovered = balance_after_sol - balance_before_sol;
+        let gas_consumed = actual_recovered - total_rent_recovered;
+
+        info!("\n====== 处理完成 ======");
+        info!("执行前钱包余额: {} SOL", balance_before_sol);
+        info!("执行后钱包余额: {} SOL", balance_after_sol);
+        info!("实际增加余额: {} SOL", actual_recovered);
+        info!("成功处理: {} 个账户", success_count);
+        info!("失败数量: {} 个账户", fail_count);
+        info!("预计回收租金: {} SOL", total_rent_recovered);
+        info!("GAS 消耗: {} SOL", gas_consumed);
+
+        Ok(())
     }
 }
