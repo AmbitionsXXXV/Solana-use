@@ -37,7 +37,7 @@ impl TokenAccountManager {
         let private_key = key_value.as_str().ok_or("Invalid key format")?;
 
         let wallet = Keypair::from_base58_string(private_key);
-        let whitelist = TokenWhitelist::new(); // -- 初始化白名单
+        let whitelist = TokenWhitelist::new(Some(true)); // -- 初始化白名单
 
         Ok(Self {
             connection,
@@ -46,14 +46,34 @@ impl TokenAccountManager {
         })
     }
 
+    /// -- 设置是否合并默认白名单
+    pub fn set_merge_default_whitelist(&mut self, merge_default: bool) {
+        self.whitelist.set_merge_default(merge_default);
+    }
+
     /// -- 添加代币符号到白名单
     pub fn add_symbol_to_whitelist(&mut self, symbol: &str) {
         self.whitelist.add_symbol(symbol);
     }
 
+    /// -- 批量添加代币符号到白名单
+    pub fn add_symbols_to_whitelist(&mut self, symbols: &[&str]) {
+        self.whitelist.add_symbols(symbols);
+    }
+
     /// -- 添加 Mint 地址到白名单
     pub fn add_mint_to_whitelist(&mut self, mint: &str) {
         self.whitelist.add_mint(mint);
+    }
+
+    /// -- 批量添加 Mint 地址到白名单
+    pub fn add_mints_to_whitelist(&mut self, mints: &[&str]) {
+        self.whitelist.add_mints(mints);
+    }
+
+    /// -- 检查代币是否在白名单中
+    pub fn is_token_whitelisted(&self, symbol: &str, mint: &str) -> bool {
+        self.whitelist.is_whitelisted(symbol, mint)
     }
 
     /// -- 获取指定账户的详细信息
@@ -384,7 +404,7 @@ impl TokenAccountManager {
                                 if let Some((metadata, _)) = token_info {
                                     let symbol =
                                         metadata.symbol.trim_matches(char::from(0)).to_string();
-                                    if !self.whitelist.is_whitelisted(&symbol, &mint) {
+                                    if !self.is_token_whitelisted(&symbol, &mint) {
                                         zero_value_accounts.push(ZeroValueTokenInfo {
                                             address: account.pubkey.to_string(),
                                             mint,

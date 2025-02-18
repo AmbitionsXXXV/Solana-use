@@ -14,12 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut manager = TokenAccountManager::new(&wallet_path)?;
 
     // -- 添加需要不需要销毁的的 Token symbol
-    manager.add_symbol_to_whitelist("JUP");
-    manager.add_symbol_to_whitelist("JLP");
-    manager.add_symbol_to_whitelist("SUPA");
-    manager.add_symbol_to_whitelist("SOL");
-    manager.add_symbol_to_whitelist("USDT");
-    manager.add_symbol_to_whitelist("USDC");
+    manager.add_symbols_to_whitelist(&["JUP", "JLP", "SUPA", "SOL", "USDT", "USDC"]);
     manager.add_symbol_to_whitelist("RAY");
 
     // -- 获取可关闭账户信息
