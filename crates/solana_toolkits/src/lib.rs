@@ -59,6 +59,18 @@ pub struct TokenAccountDetails {
     pub owner: String,      // -- 账户所有者地址
 }
 
+/// -- 销毁代币并回收账户结果结构体
+#[derive(Debug)]
+pub struct BurnAndCloseResult {
+    pub success: bool,                   // -- 操作是否成功
+    pub burn_signature: Option<String>,  // -- 销毁代币的交易签名
+    pub close_signature: Option<String>, // -- 关闭账户的交易签名
+    pub error: Option<String>,           // -- 失败时的错误信息
+    pub account_address: String,         // -- 被操作的账户地址
+    pub burned_amount: u64,              // -- 销毁的代币数量
+    pub rent_recovered: f64,             // -- 回收的租金数量（以 SOL 为单位）
+}
+
 impl TokenAccountManager {
     /// -- 创建新的代币账户管理器实例
     ///
@@ -422,5 +434,80 @@ impl TokenAccountManager {
         info!("{}", "=".repeat(50));
 
         Ok(result)
+    }
+
+    /// -- 销毁代币并回收账户
+    ///
+    /// # 参数
+    /// * `account_pubkey` - 要操作的账户公钥
+    ///
+    /// # 返回
+    /// * `Result<BurnAndCloseResult, Box<dyn Error>>` - 操作结果
+    pub async fn burn_and_close_account(&self, account_pubkey: &Pubkey) -> BurnAndCloseResult {
+        let mut result = BurnAndCloseResult {
+            success: false,
+            burn_signature: None,
+            close_signature: None,
+            error: None,
+            account_address: account_pubkey.to_string(),
+            burned_amount: 0,
+            rent_recovered: 0.0,
+        };
+
+        // -- 获取账户详情
+        match self.get_account_details(account_pubkey).await {
+            Ok(details) => {
+                if details.balance == 0 {
+                    // -- 如果余额为 0，直接关闭账户
+                    let close_result = self.close_account(account_pubkey).await;
+                    result.success = close_result.success;
+                    result.close_signature = close_result.signature;
+                    result.error = close_result.error;
+                    result.rent_recovered = close_result.rent_recovered;
+                } else {
+                    // -- 1. 销毁代币
+                    let mint_pubkey = Pubkey::from_str(&details.mint).unwrap();
+                    let burn_instruction = spl_token::instruction::burn(
+                        &spl_token::id(),
+                        account_pubkey,
+                        &mint_pubkey,
+                        &self.wallet.pubkey(),
+                        &[&self.wallet.pubkey()],
+                        details.balance,
+                    )
+                    .unwrap();
+
+                    let recent_blockhash = self.connection.get_latest_blockhash().unwrap();
+                    let burn_tx = Transaction::new_signed_with_payer(
+                        &[burn_instruction],
+                        Some(&self.wallet.pubkey()),
+                        &[&self.wallet],
+                        recent_blockhash,
+                    );
+
+                    match self.connection.send_and_confirm_transaction(&burn_tx) {
+                        Ok(signature) => {
+                            result.burn_signature = Some(signature.to_string());
+                            result.burned_amount = details.balance;
+
+                            // -- 2. 关闭账户
+                            let close_result = self.close_account(account_pubkey).await;
+                            result.success = close_result.success;
+                            result.close_signature = close_result.signature;
+                            result.rent_recovered = close_result.rent_recovered;
+                        }
+                        Err(e) => {
+                            result.error = Some(format!("销毁代币失败: {}", e));
+                            return result;
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                result.error = Some(format!("获取账户详情失败: {}", e));
+            }
+        }
+
+        result
     }
 }

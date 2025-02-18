@@ -17,7 +17,7 @@ pre-commit:
   commands:
     rust_format:
       glob: "*.{rs}"
-      run: rustfmt {staged_files}
+      run: rustfmt {staged_files} --edition 2021
     biome_check:
       glob: "*.{js,ts,jsx,tsx}"
       run: pnpm biome check --write {staged_files}
