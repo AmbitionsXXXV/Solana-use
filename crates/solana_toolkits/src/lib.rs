@@ -408,6 +408,7 @@ impl TokenAccountManager {
     /// -- 批量关闭账户
     ///
     /// 批量关闭多个代币账户，支持单独交易和批量交易两种模式。
+    /// 使用原子计数器和并发处理来提高效率。
     ///
     /// # 参数
     /// * `accounts` - 要关闭的账户列表
@@ -422,40 +423,59 @@ impl TokenAccountManager {
         batch_size: usize,
         use_batch_tx: bool,
     ) -> TokenAccountResult<()> {
+        // -- 检查账户列表是否为空
         if accounts.is_empty() {
             warn!("没有找到可关闭的账户");
             return Ok(());
         }
 
+        // -- 获取操作前的钱包余额，用于后续计算实际回收的租金
         let balance_before = self.connection.get_balance(&self.wallet.pubkey())?;
         let balance_before_sol = balance_before as f64 / LAMPORTS_PER_SOL as f64;
 
-        let success_count = Arc::new(AtomicUsize::new(0));
-        let fail_count = Arc::new(AtomicUsize::new(0));
-        let total_rent_recovered = Arc::new(AtomicU64::new(0));
+        // -- 创建原子计数器，用于跨线程安全地统计处理结果
+        // Arc (Atomic Reference Counting) 提供了线程安全的引用计数
+        // AtomicUsize 和 AtomicU64 提供了原子操作的整数类型
+        let success_count = Arc::new(AtomicUsize::new(0)); // 成功处理的账户数量
+        let fail_count = Arc::new(AtomicUsize::new(0)); // 失败的账户数量
+        let total_rent_recovered = Arc::new(AtomicU64::new(0)); // 总回收的租金（lamports）
 
         if use_batch_tx {
-            // -- 批量交易模式
+            // ====== 批量交易模式 ======
+            // 将多个账户的关闭操作合并到一个交易中执行
+
+            // -- 克隆原子计数器的引用，以便在异步闭包中使用
             let success_count_clone = Arc::clone(&success_count);
             let fail_count_clone = Arc::clone(&fail_count);
             let total_rent_recovered_clone = Arc::clone(&total_rent_recovered);
 
+            // -- 使用批处理重试机制处理账户
             self.process_batch_with_retry(accounts, batch_size, move |chunk| {
+                // 为每个异步闭包克隆计数器引用
                 let success_count = Arc::clone(&success_count_clone);
                 let fail_count = Arc::clone(&fail_count_clone);
                 let total_rent_recovered = Arc::clone(&total_rent_recovered_clone);
 
                 async move {
+                    // -- 创建批量关闭交易
                     let (transaction, chunk_rent) =
                         self.create_batch_close_transaction(chunk).await?;
+
+                    // -- 计算本批次的租金总额（转换为 lamports）
                     let rent_lamports = (chunk_rent * LAMPORTS_PER_SOL as f64) as u64;
+                    // 原子操作：添加到总租金计数器
                     total_rent_recovered.fetch_add(rent_lamports, Ordering::SeqCst);
 
+                    // -- 发送并确认交易
                     match self.connection.send_and_confirm_transaction(&transaction) {
                         Ok(signature) => {
+                            // 原子操作：增加成功计数
                             success_count.fetch_add(chunk.len(), Ordering::SeqCst);
                             info!("批量关闭成功，交易签名: {}", signature);
+
+                            // -- 打印每个账户的详细信息
                             for account in chunk {
+                                // 获取代币元数据信息
                                 if let Ok((metadata, _)) =
                                     fetch_token_info(&self.connection, &account.mint)
                                         .map_err(|e| TokenAccountError::Other(e.to_string()))
@@ -465,10 +485,12 @@ impl TokenAccountManager {
                                     info!("代币地址: {}, Symbol: {}", account.mint, symbol);
                                 }
                                 info!("成功关闭账户: {}", account.address);
+                                info!("代币 Symbol: {}", account.symbol);
                             }
                             Ok(())
                         }
                         Err(e) => {
+                            // 原子操作：增加失败计数
                             fail_count.fetch_add(chunk.len(), Ordering::SeqCst);
                             Err(TokenAccountError::TransactionError(e.to_string()))
                         }
@@ -477,26 +499,35 @@ impl TokenAccountManager {
             })
             .await?;
         } else {
-            // -- 单独交易模式
+            // ====== 单独交易模式 ======
+            // 为每个账户创建单独的关闭交易
+
+            // -- 克隆原子计数器的引用
             let success_count_clone = Arc::clone(&success_count);
             let fail_count_clone = Arc::clone(&fail_count);
             let total_rent_recovered_clone = Arc::clone(&total_rent_recovered);
 
+            // -- 使用批处理重试机制处理账户
             self.process_batch_with_retry(accounts, batch_size, move |chunk| {
                 let success_count = Arc::clone(&success_count_clone);
                 let fail_count = Arc::clone(&fail_count_clone);
                 let total_rent_recovered = Arc::clone(&total_rent_recovered_clone);
 
                 async move {
+                    // -- 逐个处理每个账户
                     for account in chunk {
+                        // 解析账户公钥
                         let pubkey = Pubkey::from_str(&account.address)
                             .map_err(|e| TokenAccountError::AccountParseError(e.to_string()))?;
 
+                        // -- 关闭账户并处理结果
                         match self.close_account_internal(&pubkey).await {
                             Ok((signature, rent_lamports)) => {
+                                // 原子操作：更新成功计数和租金总额
                                 success_count.fetch_add(1, Ordering::SeqCst);
                                 total_rent_recovered.fetch_add(rent_lamports, Ordering::SeqCst);
 
+                                // -- 获取并打印代币信息
                                 if let Ok((metadata, _)) =
                                     fetch_token_info(&self.connection, &account.mint)
                                         .map_err(|e| TokenAccountError::Other(e.to_string()))
@@ -506,7 +537,9 @@ impl TokenAccountManager {
                                     info!("代币地址: {}, Symbol: {}", account.mint, symbol);
                                 }
 
+                                // -- 打印成功信息
                                 info!("成功关闭账户: {}", account.address);
+                                info!("代币 Symbol: {}", account.symbol);
                                 info!("交易签名: {}", signature);
                                 info!(
                                     "回收租金: {} SOL",
@@ -514,6 +547,7 @@ impl TokenAccountManager {
                                 );
                             }
                             Err(e) => {
+                                // 原子操作：增加失败计数
                                 fail_count.fetch_add(1, Ordering::SeqCst);
                                 error!("关闭失败: {}", account.address);
                                 error!("错误信息: {}", e);
@@ -526,14 +560,18 @@ impl TokenAccountManager {
             .await?;
         }
 
-        // -- 统计结果
+        // ====== 统计最终结果 ======
+        // -- 获取操作后的钱包余额
         let balance_after = self.connection.get_balance(&self.wallet.pubkey())?;
         let balance_after_sol = balance_after as f64 / LAMPORTS_PER_SOL as f64;
+
+        // -- 计算实际回收的租金和 GAS 消耗
         let actual_recovered = balance_after_sol - balance_before_sol;
         let total_rent_recovered_sol =
             total_rent_recovered.load(Ordering::SeqCst) as f64 / LAMPORTS_PER_SOL as f64;
         let gas_consumed = actual_recovered - total_rent_recovered_sol;
 
+        // -- 打印统计信息
         info!("\n====== 处理完成 ======");
         info!("执行前钱包余额: {} SOL", balance_before_sol);
         info!("执行后钱包余额: {} SOL", balance_after_sol);
@@ -833,6 +871,7 @@ impl TokenAccountManager {
                     total_rent_recovered += result.rent_recovered;
 
                     info!("成功处理账户: {}", result.account_address);
+                    info!("代币 Symbol: {}", account.symbol);
                     info!("销毁数量: {}", result.burned_amount);
                     info!("销毁交易: {}", result.burn_signature.unwrap());
                     info!("关闭交易: {}", result.close_signature.unwrap());
