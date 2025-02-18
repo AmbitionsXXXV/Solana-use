@@ -126,7 +126,7 @@ pnpm run transfer_usdc
 
 ### 1. 项目结构说明
 
-```
+```bash
 .
 ├── client/               # 客户端工具和示例
 │   ├── create_account/   # 创建账户
