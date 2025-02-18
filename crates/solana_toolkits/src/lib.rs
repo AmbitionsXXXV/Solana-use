@@ -1,4 +1,3 @@
-use anyhow::{Context, Result};
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_request::TokenAccountsFilter;
 use solana_sdk::{
@@ -129,20 +128,16 @@ impl TokenAccountManager {
     /// * `wallet_key_path` - 钱包密钥文件路径
     ///
     /// # 返回
-    /// * `Result<Self>` - 成功返回管理器实例，失败返回错误
-    pub fn new(wallet_key_path: &str) -> Result<Self> {
-        let connection =
-            init_rpc_client(CommitmentConfig::confirmed()).context("初始化 RPC 客户端失败")?;
+    /// * `Result<Self, Box<dyn Error>>` - 成功返回管理器实例，失败返回错误
+    pub fn new(wallet_key_path: &str) -> Result<Self, Box<dyn Error>> {
+        let connection = init_rpc_client(CommitmentConfig::confirmed())?;
 
-        let key_str = read_to_string(wallet_key_path).context("读取钱包密钥文件失败")?;
-        let key_value: serde_json::Value =
-            serde_json::from_str(&key_str).context("解析钱包密钥 JSON 失败")?;
-        let private_key = key_value
-            .as_str()
-            .ok_or_else(|| anyhow::anyhow!("无效的密钥格式"))?;
+        let key_str = read_to_string(wallet_key_path)?;
+        let key_value: serde_json::Value = serde_json::from_str(&key_str)?;
+        let private_key = key_value.as_str().ok_or("Invalid key format")?;
 
         let wallet = Keypair::from_base58_string(private_key);
-        let whitelist = TokenWhitelist::new();
+        let whitelist = TokenWhitelist::new(); // -- 初始化白名单
 
         Ok(Self {
             connection,
