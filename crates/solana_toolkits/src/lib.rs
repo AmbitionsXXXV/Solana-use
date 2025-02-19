@@ -1,11 +1,13 @@
 use account_info::*;
+use config::*;
+use operations::{create_batch_close_transaction, execute_close_account};
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_request::TokenAccountsFilter;
 use solana_sdk::{
-    commitment_config::CommitmentConfig, native_token::LAMPORTS_PER_SOL, program_pack::Pack,
-    pubkey::Pubkey, signature::Keypair, signer::Signer, transaction::Transaction,
+    native_token::LAMPORTS_PER_SOL, program_pack::Pack, pubkey::Pubkey, signature::Keypair,
+    signer::Signer,
 };
-use spl_token::{instruction::close_account, state::Account};
+use spl_token::state::Account;
 use std::future::Future;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -24,33 +26,9 @@ use whitelist::TokenWhitelist;
 /// - 白名单管理
 /// - 资源回收
 pub mod account_info;
+pub mod config;
+mod operations;
 pub mod whitelist;
-
-/// -- 代币账户管理配置
-///
-/// 用于配置代币账户管理器的各项参数
-#[derive(Debug, Clone)]
-pub struct TokenAccountConfig {
-    /// Solana 网络提交配置
-    pub commitment: CommitmentConfig,
-    /// 批处理操作间隔时间
-    pub batch_delay: Duration,
-    /// 最大重试次数
-    pub max_retries: u32,
-    /// 重试间隔时间
-    pub retry_delay: Duration,
-}
-
-impl Default for TokenAccountConfig {
-    fn default() -> Self {
-        Self {
-            commitment: CommitmentConfig::confirmed(),
-            batch_delay: Duration::from_millis(2000),
-            max_retries: 3,
-            retry_delay: Duration::from_millis(1000),
-        }
-    }
-}
 
 /// -- 代币账户管理器
 ///
@@ -232,46 +210,6 @@ impl TokenAccountManager {
         })
     }
 
-    /// -- 执行账户关闭操作
-    ///
-    /// 关闭指定的代币账户，回收租金。
-    ///
-    /// # 参数
-    /// * `account_pubkey` - 要关闭的账户公钥
-    /// * `rent_lamports` - 账户当前的租金金额
-    ///
-    /// # 返回
-    /// * `TokenAccountResult<(String, u64)>` - 成功返回 (交易签名, 租金金额)，失败返回错误
-    pub async fn execute_close_account(
-        &self,
-        account_pubkey: &Pubkey,
-        rent_lamports: u64,
-    ) -> TokenAccountResult<(String, u64)> {
-        let instruction = close_account(
-            &spl_token::id(),
-            account_pubkey,
-            &self.wallet.pubkey(),
-            &self.wallet.pubkey(),
-            &[&self.wallet.pubkey()],
-        )?;
-
-        let transaction = Transaction::new_signed_with_payer(
-            &[instruction],
-            Some(&self.wallet.pubkey()),
-            &[&self.wallet],
-            self.connection
-                .get_latest_blockhash()
-                .map_err(TokenAccountError::from)?,
-        );
-
-        let signature = self
-            .connection
-            .send_and_confirm_transaction(&transaction)
-            .map_err(|e| TokenAccountError::TransactionError(e.to_string()))?;
-
-        Ok((signature.to_string(), rent_lamports))
-    }
-
     /// -- 关闭单个代币账户的内部实现
     ///
     /// 内部使用的账户关闭实现，包含余额检查等安全措施。
@@ -291,8 +229,13 @@ impl TokenAccountManager {
             return Err(TokenAccountError::NonZeroBalance(details.balance));
         }
 
-        self.execute_close_account(account_pubkey, details.rent_lamports)
-            .await
+        execute_close_account(
+            &self.connection,
+            &self.wallet,
+            account_pubkey,
+            details.rent_lamports,
+        )
+        .await
     }
 
     /// -- 关闭单个代币账户
@@ -321,46 +264,6 @@ impl TokenAccountManager {
                 rent_recovered: 0.0,
             },
         }
-    }
-
-    /// -- 创建批量关闭交易
-    ///
-    /// 为多个账户创建一个批量关闭交易。
-    ///
-    /// # 参数
-    /// * `accounts` - 要关闭的账户列表
-    ///
-    /// # 返回
-    /// * `TokenAccountResult<(Transaction, f64)>` - 成功返回 (交易对象, 预计回收租金)
-    async fn create_batch_close_transaction(
-        &self,
-        accounts: &[TokenAccountInfo],
-    ) -> TokenAccountResult<(Transaction, f64)> {
-        let mut instructions = Vec::new();
-        let mut total_rent_recovered = 0.0;
-
-        for account in accounts {
-            let pubkey = Pubkey::from_str(&account.address)
-                .map_err(|e| TokenAccountError::AccountParseError(e.to_string()))?;
-            let instruction = close_account(
-                &spl_token::id(),
-                &pubkey,
-                &self.wallet.pubkey(),
-                &self.wallet.pubkey(),
-                &[&self.wallet.pubkey()],
-            )?;
-            instructions.push(instruction);
-            total_rent_recovered += account.rent_sol;
-        }
-
-        let transaction = Transaction::new_signed_with_payer(
-            &instructions,
-            Some(&self.wallet.pubkey()),
-            &[&self.wallet],
-            self.connection.get_latest_blockhash()?,
-        );
-
-        Ok((transaction, total_rent_recovered))
     }
 
     /// -- 通用批量处理函数
@@ -459,7 +362,8 @@ impl TokenAccountManager {
                 async move {
                     // -- 创建批量关闭交易
                     let (transaction, chunk_rent) =
-                        self.create_batch_close_transaction(chunk).await?;
+                        create_batch_close_transaction(&self.connection, &self.wallet, chunk)
+                            .await?;
 
                     // -- 计算本批次的租金总额（转换为 lamports）
                     let rent_lamports = (chunk_rent * LAMPORTS_PER_SOL as f64) as u64;
@@ -516,7 +420,7 @@ impl TokenAccountManager {
                 async move {
                     // -- 逐个处理每个账户
                     for account in chunk {
-                        // 解析账户公钥
+                        // -- 解析账户公钥
                         let pubkey = Pubkey::from_str(&account.address)
                             .map_err(|e| TokenAccountError::AccountParseError(e.to_string()))?;
 
@@ -773,27 +677,18 @@ impl TokenAccountManager {
                 } else {
                     // -- 1. 销毁代币
                     let mint_pubkey = Pubkey::from_str(&details.mint).unwrap();
-                    let burn_instruction = spl_token::instruction::burn(
-                        &spl_token::id(),
+
+                    match operations::burn_tokens(
+                        &self.connection,
+                        &self.wallet,
                         account_pubkey,
                         &mint_pubkey,
-                        &self.wallet.pubkey(),
-                        &[&self.wallet.pubkey()],
                         details.balance,
                     )
-                    .unwrap();
-
-                    let recent_blockhash = self.connection.get_latest_blockhash().unwrap();
-                    let burn_tx = Transaction::new_signed_with_payer(
-                        &[burn_instruction],
-                        Some(&self.wallet.pubkey()),
-                        &[&self.wallet],
-                        recent_blockhash,
-                    );
-
-                    match self.connection.send_and_confirm_transaction(&burn_tx) {
+                    .await
+                    {
                         Ok(signature) => {
-                            result.burn_signature = Some(signature.to_string());
+                            result.burn_signature = Some(signature);
                             result.burned_amount = details.balance;
 
                             // -- 2. 关闭账户
